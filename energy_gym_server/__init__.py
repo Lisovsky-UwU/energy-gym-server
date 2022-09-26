@@ -1,4 +1,4 @@
-from app import build_app
+from .app import build_app
 
 
 def start():

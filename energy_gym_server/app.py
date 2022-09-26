@@ -1,7 +1,7 @@
 from quart import Quart
 from quart_cors import cors
 
-from config_module import config
+from .config_module import config
 
 
 def build_app() -> Quart:
