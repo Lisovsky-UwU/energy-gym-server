@@ -9,7 +9,7 @@ def build_app() -> Quart:
     app = Quart(__name__)
     app.register_blueprint(api_bl, url_prefix='/api')
 
-    if config.use_dev == True:
+    if config.default.use_dev == True:
         app = cors(app, allow_origin='*')
 
     return app

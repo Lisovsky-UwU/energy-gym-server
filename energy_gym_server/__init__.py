@@ -7,7 +7,7 @@ def start():
         app = build_app()
         app.run(
             host='0.0.0.0',
-            port=config.server_port,
+            port=config.default.server_port,
             use_reloader=False
         )
     except KeyboardInterrupt:
