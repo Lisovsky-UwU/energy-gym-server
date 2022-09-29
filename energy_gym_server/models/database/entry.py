@@ -4,7 +4,7 @@ from sqlalchemy.orm import relationship
 from . import Base
 
 
-class Entries(Base):
+class Entry(Base):
     __tablename__ = 'entries'
 
     code = Column(Integer, primary_key=True, autoincrement=True)

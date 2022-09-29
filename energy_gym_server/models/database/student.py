@@ -3,7 +3,7 @@ from sqlalchemy import Column, Integer, String
 from . import Base
 
 
-class Students(Base):
+class Student(Base):
     __tablename__ = 'students'
 
     code = Column(Integer, primary_key=True)
