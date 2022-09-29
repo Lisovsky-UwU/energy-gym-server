@@ -16,5 +16,5 @@ class PeriodDaysRequest(BaseModel):
     date_end: date
 
 
-class DayByDate(BaseModel):
+class DayByDateRequest(BaseModel):
     date: date

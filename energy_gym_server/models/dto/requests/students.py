@@ -3,9 +3,9 @@ from pydantic import BaseModel
 from .. import Student
 
 
-class StudentByCode(BaseModel):
+class StudentByCodeRequest(BaseModel):
     code: int
 
 
-class AddStudent(Student):
+class AddStudentRequest(Student):
     pass

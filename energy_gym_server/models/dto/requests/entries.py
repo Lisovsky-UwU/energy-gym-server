@@ -2,18 +2,18 @@ from datetime import date
 from pydantic import BaseModel
 
 
-class CreateEntry(BaseModel):
+class CreateEntryRequest(BaseModel):
     selected_day: date
     student_code: int
 
 
-class EntryByCode(BaseModel):
+class EntryByCodeRequest(BaseModel):
     code: int
 
 
-class DayEntries(BaseModel):
+class DayEntriesRequest(BaseModel):
     date: date
 
 
-class StudentEntries(BaseModel):
+class StudentEntriesRequest(BaseModel):
     student_code: int
