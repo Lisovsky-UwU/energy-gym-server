@@ -11,7 +11,7 @@ class Student(BaseModel):
 class AvailableDayBase(BaseModel):
     code: int
     day: date
-    number_of_student: int
+    number_of_students: int
 
 
 class AvailableDayDetailed(AvailableDayBase):

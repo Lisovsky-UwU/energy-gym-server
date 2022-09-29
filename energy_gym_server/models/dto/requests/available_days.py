@@ -3,6 +3,11 @@ from typing import List
 from pydantic import BaseModel
 
 
+class AvailableDayAddRequest(BaseModel):
+    day: date
+    number_of_students: int
+
+
 class DayByCodeRequest(BaseModel):
     code: int
 

@@ -4,5 +4,5 @@ from pydantic import BaseModel
 from .. import AvailableDayDetailed
 
 
-class AllDays(BaseModel):
+class AvailableDayList(BaseModel):
     day_list: List[AvailableDayDetailed]
