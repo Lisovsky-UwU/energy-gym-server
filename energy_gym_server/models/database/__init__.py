@@ -11,3 +11,4 @@ Base = declarative_base(bind=engine)
 from .available_days import AvailableDays
 from .entries import Entries
 from .students import Students
+from .token import Token
