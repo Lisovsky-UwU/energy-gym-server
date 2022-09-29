@@ -12,5 +12,5 @@ class Entry(Base):
     selected_day = Column(Integer, ForeignKey('available_days.code'), nullable=False, index=True)
     student = Column(Integer, ForeignKey('students.code'), nullable=False, index=True)
 
-    available_days = relationship('AvailableDays')
-    students = relationship('Students')
+    available_days = relationship('AvailableDay', back_populates='entries')
+    students = relationship('Student', back_populates='entries')
