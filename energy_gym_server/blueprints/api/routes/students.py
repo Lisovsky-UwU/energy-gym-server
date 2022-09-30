@@ -28,3 +28,17 @@ async def get_student_list(
 ):
     data = await service.get_student_list()
     return jsonify(data.dict())
+
+
+@api.delete('/students/delete')
+@inject
+async def delete_student(
+    service: StudentsService = Provide[Application.services.students]
+):
+    body = await request.get_json()
+    request_dto = dto.StudentDeleteRequest(**body)
+
+    data = await service.delete_student(request_dto)
+    await service.commit()
+
+    return jsonify(data.dict())

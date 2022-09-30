@@ -1,6 +1,6 @@
 from typing import List
 from sqlalchemy.future import select
-from sqlalchemy import func, cast, DATE, any_
+from sqlalchemy import func, any_
 
 from . import DataBaseService
 from ..models import dto, database

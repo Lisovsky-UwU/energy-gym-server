@@ -1,5 +1,5 @@
-from tokenize import group
 from typing import List
+from sqlalchemy import any_
 from sqlalchemy.future import select
 
 from . import DataBaseService
@@ -33,6 +33,28 @@ class StudentsService(DataBaseService):
                 )
             ]
         )
+
+
+    async def delete_student(self, request: dto.StudentDeleteRequest) -> dto.StudentDeleted:
+        code_list_for_delete = []
+        if request.code is not None:
+            code_list_for_delete.append(request.code)
+        if request.code_list is not None:
+            code_list_for_delete = request.code_list
+
+        db_student_list = await self.__get_student_list_for_filter__(
+            [
+                database.Student.code == any_(code_list_for_delete)
+            ]
+        )
+        
+        for db_student in db_student_list:
+            await self.session.delete(db_student)
+
+        return dto.StudentDeleted(
+            result_text=f'Студенты с кодами {code_list_for_delete} успешно удалены'
+        )
+
 
     async def __get_student_list_for_filter__(self, filter: List = []) -> List[database.Student]:
         return list(
