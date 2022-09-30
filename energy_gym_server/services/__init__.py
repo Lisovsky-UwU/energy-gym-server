@@ -1,10 +1,11 @@
-from ..models.database import session_factory
+from sqlalchemy.orm import Session
+
 from ..exceptions import DataBaseConnectionException
 
 
 class DataBaseService:
     
-    def __init__(self, session):
+    def __init__(self, session: Session):
         self.session = session
 
     def __getattr__(self, attr):
@@ -22,3 +23,4 @@ class DataBaseService:
 
 
 from .available_days import AvailableDaysService
+from .students import StudentsService

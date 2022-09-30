@@ -2,7 +2,7 @@ from dependency_injector import containers, providers
 
 from .models.database import session_factory
 from .config_module import Config
-from .services import AvailableDaysService
+from .services import AvailableDaysService, StudentsService
 
 
 class Services(containers.DeclarativeContainer):
@@ -17,6 +17,11 @@ class Services(containers.DeclarativeContainer):
 
     available_day = providers.Factory(
         AvailableDaysService,
+        session=session_factory
+    )
+
+    students = providers.Factory(
+        StudentsService,
         session=session_factory
     )
 

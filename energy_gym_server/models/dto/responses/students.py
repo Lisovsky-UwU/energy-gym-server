@@ -5,4 +5,4 @@ from .. import Student
 
 
 class StudentList(BaseModel):
-    stidents: List[Student]
+    student_list: List[Student]
