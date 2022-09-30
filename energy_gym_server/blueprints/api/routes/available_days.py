@@ -13,7 +13,7 @@ async def get_available_day_list():
     return jsonify(data.dict())
 
 
-@api.post('/available-days/add-day')
+@api.post('/available-days/add')
 async def add_day():
     body = await request.get_json()
     request_dto = dto.AvailableDayAddRequest(**body)
@@ -28,9 +28,21 @@ async def add_day():
 @api.get('/available-days/get-list-in-period')
 async def get_available_day_list_in_period():
     body = await request.get_json()
-    request_dto = dto.AvailableDaysInPeriodRequest(**body)
+    request_dto = dto.AvailableDayListInPeriodRequest(**body)
 
     async with AvailableDaysService() as service:
         data = await service.get_days_by_period(request_dto)
+
+    return jsonify(data.dict())
+
+
+@api.delete('/available-days/delete')
+async def delete_available_day():
+    body = await request.get_json()
+    request_dto = dto.AvailableDayDeleteRequest(**body)
+
+    async with AvailableDaysService() as service:
+        data = await service.delete_day(request_dto)
+        await service.commit()
 
     return jsonify(data.dict())

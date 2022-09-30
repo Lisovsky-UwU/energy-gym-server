@@ -1,6 +1,6 @@
 from typing import List
 from sqlalchemy.future import select
-from sqlalchemy import func, cast, DATE
+from sqlalchemy import func, cast, DATE, any_
 
 from . import DataBaseService
 from ..models import dto, database
@@ -38,7 +38,7 @@ class AvailableDaysService(DataBaseService):
         )
 
 
-    async def get_days_by_period(self, request: dto.AvailableDaysInPeriodRequest) -> dto.AvailableDayList:
+    async def get_days_by_period(self, request: dto.AvailableDayListInPeriodRequest) -> dto.AvailableDayList:
         return await self.__get_days_with_free_seats__(
             await self.__get_day_list_for_filter__(
                 [
@@ -46,6 +46,27 @@ class AvailableDaysService(DataBaseService):
                     database.AvailableDay.day <= request.date_end
                 ]
             )
+        )
+
+
+    async def delete_day(self, request: dto.AvailableDayDeleteRequest) -> dto.AvailableDayDeleted:
+        code_list_for_delete = []
+        if request.code is not None:
+            code_list_for_delete.append(request.code)
+        if request.code_list is not None:
+            code_list_for_delete = request.code_list
+
+        db_day_list = await self.__get_day_list_for_filter__(
+            [
+                database.AvailableDay.code == any_(code_list_for_delete)
+            ]
+        )
+
+        for db_day in db_day_list:
+            await self.session.delete(db_day)
+
+        return dto.AvailableDayDeleted(
+            result_text=f'Дни с кодами {code_list_for_delete} успешно удалены'
         )
 
 
