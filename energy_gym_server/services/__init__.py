@@ -4,11 +4,8 @@ from ..exceptions import DataBaseConnectionException
 
 class DataBaseService:
     
-    def __init__(self, session = None, **kwargs):
-        if session is None:
-            self.session = session_factory(**kwargs)
-        else:
-            self.session = session
+    def __init__(self, session):
+        self.session = session
 
     def __getattr__(self, attr):
         return getattr(self.session, attr)
