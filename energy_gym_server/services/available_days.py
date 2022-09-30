@@ -24,15 +24,6 @@ class AvailableDaysService(DataBaseService):
 
 
     async def get_all_days(self) -> dto.AvailableDayList:
-        # try:
-        # db_day_list = (
-        #     await self.session.scalars(
-        #         select(database.AvailableDay)
-        #         .order_by(database.AvailableDay.day)
-        #     )
-        # )
-        # except:
-
         return await self.__get_days_with_free_seats__(
             await self.__get_day_list_for_filter__()
         )
@@ -71,15 +62,11 @@ class AvailableDaysService(DataBaseService):
 
 
     async def __get_day_list_for_filter__(self, filter: List = [True]) -> List[database.AvailableDay]:
-        db_day_list = (
-            await self.session.scalars(
-                select(database.AvailableDay)
-                .filter(*filter)
-                .order_by(database.AvailableDay.day)
-            )
+        return await self.session.scalars(
+            select(database.AvailableDay)
+            .filter(*filter)
+            .order_by(database.AvailableDay.day)
         )
-
-        return list(db_day_list)
 
 
     async def __get_days_with_free_seats__(self, db_day_list: List[database.AvailableDay]):
