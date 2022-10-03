@@ -49,6 +49,14 @@ class EntriesService(BaseService):
             ]
         )
 
+    
+    async def get_entries_for_student(self, request: dto.StudentEntriesRequest) -> dto.EntryList:
+        return await self.__get_entry_list_for_filter__(
+            [
+                database.Entry.student == request.student_code
+            ]
+        )
+
 
     async def __get_entry_list_for_filter__(self, filter: List = []) -> dto.EntryList:
         return dto.EntryList(
