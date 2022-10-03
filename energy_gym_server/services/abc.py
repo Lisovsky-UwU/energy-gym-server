@@ -44,7 +44,14 @@ class BaseService(AsyncDataBaseService):
         )
 
 
-    async def __get_item_list_for_filter__(self, type_table: T, filter: List = [True]) -> List[T]:
+    async def __get_one_item_for_filter__(self, type_table: T, filter: List = []) -> T:
+        return await self.session.scalar(
+            select(type_table)
+            .filter(*filter)
+        )
+
+
+    async def __get_item_list_for_filter__(self, type_table: T, filter: List = []) -> List[T]:
         return list(
             await self.session.scalars(
                 select(type_table)
