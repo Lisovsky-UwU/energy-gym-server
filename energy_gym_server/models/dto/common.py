@@ -22,4 +22,4 @@ class EntryModel(BaseModel):
     code: int
     create_time: datetime
     selected_day: int
-    student_code: int
+    student: int

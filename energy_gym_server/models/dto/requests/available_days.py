@@ -1,6 +1,6 @@
+from typing import List
+from pydantic import BaseModel
 from datetime import date
-from typing import List, Optional
-from pydantic import BaseModel, root_validator
 
 
 class AvailableDayAddRequest(BaseModel):
@@ -23,15 +23,3 @@ class AvailableDayListInPeriodRequest(BaseModel):
 
 class AvailableDayByDateRequest(BaseModel):
     date: date
-
-
-class AvailableDayDeleteRequest(BaseModel):
-    code: Optional[int]
-    code_list: Optional[List[int]]
-
-    @root_validator
-    def required_field(cls, fields):
-        if not (bool(fields.get("code")) ^ bool(fields.get("code_list"))):
-            raise ValueError('Необходим один из параметров code или code_list')
-
-        return fields

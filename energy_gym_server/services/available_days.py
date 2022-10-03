@@ -2,17 +2,14 @@ from typing import List
 from sqlalchemy.future import select
 from sqlalchemy import func, any_
 
-from . import DataBaseService
+from .abc import BaseService
 from ..models import dto, database
 
 
-class AvailableDaysService(DataBaseService):
+class AvailableDaysService(BaseService):
 
     async def add_day(self, request: dto.AvailableDayAddRequest) -> dto.AvailableDayBase:
-        available_day = database.AvailableDay(
-            day = request.day,
-            number_of_students = request.number_of_students
-        )
+        available_day = database.AvailableDay(**request.dict())
         self.session.add(available_day)
         await self.session.flush()
         
@@ -22,16 +19,16 @@ class AvailableDaysService(DataBaseService):
             number_of_students=available_day.number_of_students
         )
 
-
     async def get_all_days(self) -> dto.AvailableDayList:
         return await self.__get_days_with_free_seats__(
-            await self.__get_day_list_for_filter__()
+            await self.__get_item_list_for_filter__(database.AvailableDay)
         )
 
 
     async def get_days_by_period(self, request: dto.AvailableDayListInPeriodRequest) -> dto.AvailableDayList:
         return await self.__get_days_with_free_seats__(
-            await self.__get_day_list_for_filter__(
+            await self.__get_item_list_for_filter__(
+                database.AvailableDay,
                 [
                     database.AvailableDay.day >= request.date_begin, 
                     database.AvailableDay.day <= request.date_end
@@ -40,33 +37,8 @@ class AvailableDaysService(DataBaseService):
         )
 
 
-    async def delete_day(self, request: dto.AvailableDayDeleteRequest) -> dto.AvailableDayDeleted:
-        code_list_for_delete = []
-        if request.code is not None:
-            code_list_for_delete.append(request.code)
-        if request.code_list is not None:
-            code_list_for_delete = request.code_list
-
-        db_day_list = await self.__get_day_list_for_filter__(
-            [
-                database.AvailableDay.code == any_(code_list_for_delete)
-            ]
-        )
-
-        for db_day in db_day_list:
-            await self.session.delete(db_day)
-
-        return dto.AvailableDayDeleted(
-            result_text=f'Дни с кодами {code_list_for_delete} успешно удалены'
-        )
-
-
-    async def __get_day_list_for_filter__(self, filter: List = [True]) -> List[database.AvailableDay]:
-        return await self.session.scalars(
-            select(database.AvailableDay)
-            .filter(*filter)
-            .order_by(database.AvailableDay.day)
-        )
+    async def delete_day(self, request: dto.ItemsDeleteRequest) -> dto.AvailableDayDeleted:
+        return await self.__delete_items__(database.AvailableDay, request)
 
 
     async def __get_days_with_free_seats__(self, db_day_list: List[database.AvailableDay]):

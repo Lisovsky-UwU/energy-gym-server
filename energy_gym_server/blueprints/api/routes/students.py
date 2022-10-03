@@ -36,7 +36,7 @@ async def delete_student(
     service: StudentsService = Provide[Application.services.students]
 ):
     body = await request.get_json()
-    request_dto = dto.StudentDeleteRequest(**body)
+    request_dto = dto.ItemsDeleteRequest(**body)
 
     data = await service.delete_student(request_dto)
     await service.commit()

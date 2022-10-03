@@ -49,7 +49,7 @@ async def delete_available_day(
     service: AvailableDaysService = Provide[Application.services.available_day]
 ):
     body = await request.get_json()
-    request_dto = dto.AvailableDayDeleteRequest(**body)
+    request_dto = dto.ItemsDeleteRequest(**body)
 
     data = await service.delete_day(request_dto)
     await service.commit()

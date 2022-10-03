@@ -36,7 +36,7 @@ async def delete_entry(
     service: EntriesService = Provide[Application.services.entries]
 ):
     body = await request.get_json()
-    request_dto = dto.EntryDeleteRequest(**body)
+    request_dto = dto.ItemsDeleteRequest(**body)
 
     data = await service.delete_entry(request_dto)
     await service.commit()
