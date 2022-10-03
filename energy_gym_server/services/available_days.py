@@ -37,7 +37,7 @@ class AvailableDaysService(BaseService):
         )
 
 
-    async def delete_day(self, request: dto.ItemsDeleteRequest) -> dto.AvailableDayDeleted:
+    async def delete_day(self, request: dto.ItemsDeleteRequest) -> dto.ItemsDeleted:
         return await self.__delete_items__(database.AvailableDay, request)
 
 

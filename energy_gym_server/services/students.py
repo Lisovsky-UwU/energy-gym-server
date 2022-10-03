@@ -33,5 +33,5 @@ class StudentsService(BaseService):
         )
 
 
-    async def delete_student(self, request: dto.ItemsDeleteRequest) -> dto.StudentDeleted:
+    async def delete_student(self, request: dto.ItemsDeleteRequest) -> dto.ItemsDeleted:
         return await self.__delete_items__(database.Student, request)
