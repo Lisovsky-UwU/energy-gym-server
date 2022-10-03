@@ -11,8 +11,8 @@ class EntryByCodeRequest(BaseModel):
     code: int
 
 
-class DayEntriesRequest(BaseModel):
-    date: date
+class EntriesInDayRequest(BaseModel):
+    available_day: int
 
 
 class StudentEntriesRequest(BaseModel):

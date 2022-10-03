@@ -18,6 +18,11 @@ class DataBaseConnectionException(DataBaseException):
     pass
 
 
+class DataCorrectException(DataBaseException):
+    '''Исключение при неверных данных, вносимых в бд'''
+    pass
+
+
 class ApiException(EnergyGymException):
     '''Исключение при работе с API'''
     pass

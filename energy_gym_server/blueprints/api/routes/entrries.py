@@ -26,7 +26,7 @@ async def add_entry(
 async def get_entry_list(
     service: EntriesService = Provide[Application.services.entries]
 ):
-    data = await service.get_list()
+    data = await service.get_list_all_entry()
     return jsonify(data.dict())
 
 
@@ -41,4 +41,16 @@ async def delete_entry(
     data = await service.delete_entry(request_dto)
     await service.commit()
 
+    return jsonify(data.dict())
+
+
+@api.get('/entries/get-in-day')
+@inject
+async def get_entry_list_in_day(
+    service: EntriesService = Provide[Application.services.entries]
+):
+    body = await request.get_json()
+    request_dto = dto.EntriesInDayRequest(**body)
+
+    data = await service.get_entries_in_day(request_dto)
     return jsonify(data.dict())
