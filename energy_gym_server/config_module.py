@@ -1,7 +1,7 @@
 import configparser
 from pydantic import BaseModel, validator, ValidationError
 
-from .exception import ConfigReadException
+from .exceptions import ConfigReadException
 
 
 def validate_port(value: int) -> int:
