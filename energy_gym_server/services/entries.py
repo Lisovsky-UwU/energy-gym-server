@@ -17,6 +17,12 @@ class EntriesService(BaseService):
         if (await self.__get_one_item_for_filter__(database.Student, [database.Student.code == request.student_code]) is None):
             raise DataCorrectException('Указанный студент не найден')
 
+        if (await self.__get_one_item_for_filter__(database.Entry, [
+                database.Entry.student == request.student_code,
+                database.Entry.selected_day == request.selected_day
+            ]) is not None):
+            raise DataCorrectException('Такая запись уже существует')
+
         entry = database.Entry(
             create_time=datetime.now(),
             selected_day=request.selected_day,
