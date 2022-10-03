@@ -16,3 +16,13 @@ class DataBaseException(EnergyGymException):
 class DataBaseConnectionException(DataBaseException):
     '''Исключение при подключении к БД'''
     pass
+
+
+class ApiException(EnergyGymException):
+    '''Исключение при работе с API'''
+    pass
+
+
+class InvalidRequestException(ApiException):
+    '''Исключение при неверном теле запроса'''
+    pass
