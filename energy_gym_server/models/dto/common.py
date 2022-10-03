@@ -18,8 +18,8 @@ class AvailableDayDetailed(AvailableDayBase):
     free_seats: int
 
 
-class Entry(BaseModel):
+class EntryModel(BaseModel):
     code: int
     create_time: datetime
-    selected_day: date
+    selected_day: int
     student_code: int

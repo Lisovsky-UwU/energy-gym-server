@@ -1,9 +1,12 @@
 from typing import List
 from pydantic import BaseModel
 
-from .. import Entry
+from .. import EntryModel
 
 
 class EntryList(BaseModel):
-    entries: List[Entry]
-    
+    entry_list: List[EntryModel]
+
+
+class EntryDeleted(BaseModel):
+    result_text: str
