@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import List
+from sqlalchemy import select, func
 
 from .abc import BaseService
 from ..models import dto, database
@@ -9,16 +10,31 @@ from ..exceptions import DataCorrectException
 class EntriesService(BaseService):
     
     async def add_entry(self, request: dto.AddEntryRequest) -> dto.EntryModel:
-        if (await self.__get_one_item_for_filter__(database.AvailableDay, [database.AvailableDay.code == request.selected_day]) is None):
+        db_selected_day = await self.__get_one_item_for_filter__(database.AvailableDay, [database.AvailableDay.code == request.selected_day])
+        if db_selected_day is None:
             raise DataCorrectException('На указанный день возможные записи отсутствуют')
-        if (await self.__get_one_item_for_filter__(database.Student, [database.Student.code == request.student_code]) is None):
+        if await self.__get_one_item_for_filter__(database.Student, [database.Student.code == request.student_code]) is None:
             raise DataCorrectException('Указанный студент не найден')
 
-        if (await self.__get_one_item_for_filter__(database.Entry, [
+        if await self.__get_one_item_for_filter__(database.Entry, [
                 database.Entry.student == request.student_code,
                 database.Entry.selected_day == request.selected_day
-            ]) is not None):
+            ]) is not None:
             raise DataCorrectException('Такая запись уже существует')
+
+        entries_day = (
+            await self.session.execute(
+                select(func.count())
+                .select_from(
+                    select(database.Entry)
+                    .filter(database.Entry.selected_day == request.selected_day)
+                    .subquery()
+                )
+            )
+        ).one()
+
+        if db_selected_day.number_of_students - entries_day.count <= 0:
+            raise DataCorrectException('На данный день отсутствуют свободные места')
 
         entry = database.Entry(
             create_time=datetime.now(),
