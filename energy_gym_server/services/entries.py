@@ -77,7 +77,7 @@ class EntriesService(BaseService):
         )
 
 
-    async def get_detailed_entry(self, request: dto.EntryByCodeRequest) -> dto.DetailedEntry:
+    async def get_detailed_entry(self, request: dto.ItemByCodeRequest) -> dto.DetailedEntry:
         db_entry = await self.__get_one_item_for_filter__(database.Entry, [database.Entry.code == request.code])
         if db_entry is None:
             raise DataCorrectException('Запрашиваемая запись не найдена')

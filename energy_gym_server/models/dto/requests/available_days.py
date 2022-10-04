@@ -8,10 +8,6 @@ class AvailableDayAddRequest(BaseModel):
     number_of_students: int
 
 
-class AvailableDayByCodeRequest(BaseModel):
-    code: int
-
-
 class AvailableDayListByCodeRequest(BaseModel):
     code_list: List[int]
 

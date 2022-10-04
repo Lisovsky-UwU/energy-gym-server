@@ -6,10 +6,6 @@ class AddEntryRequest(BaseModel):
     student_code: int
 
 
-class EntryByCodeRequest(BaseModel):
-    code: int
-
-
 class EntriesInDayRequest(BaseModel):
     available_day: int
 

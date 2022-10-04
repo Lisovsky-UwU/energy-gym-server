@@ -55,3 +55,16 @@ async def delete_available_day(
     await service.commit()
 
     return jsonify(data.dict())
+
+
+@api.get('available-days/get-by-code')
+@inject
+async def get_abailable_day_by_code(
+    service: AvailableDaysService = Provide[Application.services.available_day]
+):
+    body = await request.get_json()
+    request_dto = dto.ItemByCodeRequest(**body)
+
+    data = await service.get_day_by_code(request_dto)
+
+    return jsonify(data.dict())

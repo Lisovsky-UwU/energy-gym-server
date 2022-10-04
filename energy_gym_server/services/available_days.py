@@ -1,3 +1,4 @@
+import asyncio
 from typing import List
 from sqlalchemy.future import select
 from sqlalchemy import func
@@ -41,33 +42,46 @@ class AvailableDaysService(BaseService):
         )
 
 
+    async def get_day_by_code(self, request: dto.ItemByCodeRequest) -> dto.AvailableDayDetailed:
+        return await self.__get_day_with_free_seats__(
+            await self.__get_one_item_for_filter__(
+                database.AvailableDay.code,
+                [
+                    database.AvailableDay.code == request.code
+                ]
+            )
+        )
+
+
     async def delete_day(self, request: dto.ItemsDeleteRequest) -> dto.ItemsDeleted:
         return await self.__delete_items__(database.AvailableDay, request)
 
 
-    async def __get_days_with_free_seats__(self, db_day_list: List[database.AvailableDay]) -> dto.AvailableDayList:
-        result_list = []
+    async def __get_day_list_with_free_seats__(self, db_day_list: List[database.AvailableDay]) -> dto.AvailableDayList:
+        task_list = []
         for db_day in db_day_list:
-            entries_day = (
-                await self.session.execute(
-                    select(func.count())
-                    .select_from(
-                        select(database.Entry)
-                        .filter(database.Entry.selected_day == db_day.code)
-                        .subquery()
-                    )
-                )
-            ).one()
-            result_list.append(
-                dto.AvailableDayDetailed
-                (
-                    code=db_day.code,
-                    day=db_day.day,
-                    number_of_students=db_day.number_of_students,
-                    free_seats=db_day.number_of_students - entries_day.count
-                )
-            )
+            task_list.append(self.__get_day_with_free_seats__(db_day))
         
         return dto.AvailableDayList(
-            day_list=result_list
+            day_list=asyncio.gather(*task_list).result()
         )
+
+    
+    async def __get_day_with_free_seats__(self, db_day: database.AvailableDay) -> dto.AvailableDayDetailed:
+        entries_day = (
+            await self.session.execute(
+                select(func.count())
+                .select_from(
+                    select(database.Entry)
+                    .filter(database.Entry.selected_day == db_day.code)
+                    .subquery()
+                )
+            )
+        ).one()
+        return dto.AvailableDayDetailed(
+            code=db_day.code,
+            day=db_day.day,
+            number_of_students=db_day.number_of_students,
+            free_seats=db_day.number_of_students - entries_day.count
+        )
+        

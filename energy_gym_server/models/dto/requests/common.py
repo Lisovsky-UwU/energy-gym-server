@@ -12,3 +12,7 @@ class ItemsDeleteRequest(BaseModel):
             raise ValueError('Необходим один из параметров code или code_list')
 
         return fields
+
+
+class ItemByCodeRequest(BaseModel):
+    code: int

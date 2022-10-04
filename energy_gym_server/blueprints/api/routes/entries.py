@@ -74,7 +74,7 @@ async def get_entry_for_code(
     service: EntriesService = Provide[Application.services.entries]
 ):
     body = await request.get_json()
-    request_dto = dto.EntryByCodeRequest(**body)
+    request_dto = dto.ItemByCodeRequest(**body)
 
     data = await service.get_detailed_entry(request_dto)
     return jsonify(data.dict())
