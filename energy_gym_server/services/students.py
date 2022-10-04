@@ -1,10 +1,14 @@
 from .abc import BaseService
 from ..models import dto, database
+from ..exceptions import DataCorrectException
 
 
 class StudentsService(BaseService):
 
     async def add_student(self, request: dto.StudentAddRequest) -> dto.Student:
+        if await self.__get_one_item_for_filter__(database.Student, [database.Student.code == request.code]) is not None:
+            raise DataCorrectException('Студент с данным идентефикатором уже существует')
+
         student = database.Student(**request.dict())
         self.session.add(student)
         await self.session.flush()

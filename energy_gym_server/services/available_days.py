@@ -4,11 +4,15 @@ from sqlalchemy import func
 
 from .abc import BaseService
 from ..models import dto, database
+from ..exceptions import DataCorrectException
 
 
 class AvailableDaysService(BaseService):
 
     async def add_day(self, request: dto.AvailableDayAddRequest) -> dto.AvailableDayBase:
+        if await self.__get_one_item_for_filter__(database.AvailableDay, [database.AvailableDay.day == request.day]) is not None:
+            raise DataCorrectException('Запись на данный день уже существует')
+
         available_day = database.AvailableDay(**request.dict())
         self.session.add(available_day)
         await self.session.flush()
