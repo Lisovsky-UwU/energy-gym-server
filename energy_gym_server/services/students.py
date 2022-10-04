@@ -1,7 +1,3 @@
-from typing import List
-from sqlalchemy import any_
-from sqlalchemy.future import select
-
 from .abc import BaseService
 from ..models import dto, database
 

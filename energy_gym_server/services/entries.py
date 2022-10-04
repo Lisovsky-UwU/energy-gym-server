@@ -1,8 +1,5 @@
 from datetime import datetime
 from typing import List
-from sqlalchemy import any_
-from sqlalchemy.future import select
-from sqlalchemy.exc import IntegrityError
 
 from .abc import BaseService
 from ..models import dto, database

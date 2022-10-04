@@ -1,6 +1,6 @@
 from typing import List
 from sqlalchemy.future import select
-from sqlalchemy import func, any_
+from sqlalchemy import func
 
 from .abc import BaseService
 from ..models import dto, database
