@@ -45,7 +45,7 @@ class AvailableDaysService(BaseService):
         return await self.__delete_items__(database.AvailableDay, request)
 
 
-    async def __get_days_with_free_seats__(self, db_day_list: List[database.AvailableDay]):
+    async def __get_days_with_free_seats__(self, db_day_list: List[database.AvailableDay]) -> dto.AvailableDayList:
         result_list = []
         for db_day in db_day_list:
             entries_day = (

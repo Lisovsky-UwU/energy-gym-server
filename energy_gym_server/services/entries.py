@@ -77,6 +77,22 @@ class EntriesService(BaseService):
         )
 
 
+    async def get_detailed_entry(self, request: dto.EntryByCodeRequest) -> dto.DetailedEntry:
+        db_entry = await self.__get_one_item_for_filter__(database.Entry, [database.Entry.code == request.code])
+        if db_entry is None:
+            raise DataCorrectException('Запрашиваемая запись не найдена')
+        
+        db_selected_day = await self.__get_one_item_for_filter__(database.AvailableDay, [database.AvailableDay.code == db_entry.selected_day])
+        db_student = await self.__get_one_item_for_filter__(database.Student, [database.Student.code == db_entry.student])
+
+        return dto.DetailedEntry(
+            code=db_entry.code,
+            create_time=db_entry.create_time,
+            selected_day=db_selected_day.__dict__,
+            student=db_student.__dict__
+        )
+
+
     async def __get_entry_list_for_filter__(self, filter: List = []) -> dto.EntryList:
         return dto.EntryList(
             entry_list=[

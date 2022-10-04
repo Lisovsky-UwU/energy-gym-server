@@ -66,3 +66,15 @@ async def get_entry_list_for_student(
 
     data = await service.get_entries_for_student(request_dto)
     return jsonify(data.dict())
+
+
+@api.get('/entries/get-for-code')
+@inject
+async def get_entry_for_code(
+    service: EntriesService = Provide[Application.services.entries]
+):
+    body = await request.get_json()
+    request_dto = dto.EntryByCodeRequest(**body)
+
+    data = await service.get_detailed_entry(request_dto)
+    return jsonify(data.dict())
