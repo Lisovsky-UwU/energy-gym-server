@@ -18,8 +18,13 @@ class DataBaseConnectionException(DataBaseException):
     pass
 
 
-class DataCorrectException(DataBaseException):
-    '''Исключение при неверных данных, вносимых в бд'''
+class AddDataCorrectException(DataBaseException):
+    '''Исключение при неверных вносимныз данных в БД'''
+    pass
+
+
+class GetDataCorrectException(DataBaseException):
+    '''Исключение при неверных данных, запрашиваемых из БД'''
     pass
 
 

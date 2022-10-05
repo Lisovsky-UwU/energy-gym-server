@@ -7,12 +7,12 @@ from . import api
 from energy_gym_server.exceptions import EnergyGymException, InvalidRequestException
 
 
-@api.after_request
-async def response_format(response: quart.Response):
-    body = await response.get_json()
-    if not (isinstance(body, dict) and body.get('error', False)):
-        response.data = json.dumps({'error': False, 'data': body})
-    return response
+# @api.after_request
+# async def response_format(response: quart.Response):
+#     body = await response.get_json()
+#     if not (isinstance(body, dict) and body.get('error', False)):
+#         response.data = json.dumps({'error': False, 'data': body})
+    # return response
 
 
 @api.before_request

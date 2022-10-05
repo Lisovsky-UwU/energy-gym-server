@@ -5,14 +5,14 @@ from sqlalchemy import func
 
 from .abc import BaseService
 from ..models import dto, database
-from ..exceptions import DataCorrectException
+from ..exceptions import AddDataCorrectException, GetDataCorrectException
 
 
 class AvailableDaysService(BaseService):
 
     async def add_day(self, request: dto.AvailableDayAddRequest) -> dto.AvailableDayBase:
         if await self.__get_one_item_for_filter__(database.AvailableDay, [database.AvailableDay.day == request.day]) is not None:
-            raise DataCorrectException('Запись на данный день уже существует')
+            raise AddDataCorrectException('Запись на данный день уже существует')
 
         available_day = database.AvailableDay(**request.dict())
         self.session.add(available_day)
@@ -25,13 +25,13 @@ class AvailableDaysService(BaseService):
         )
 
     async def get_all_days(self) -> dto.AvailableDayList:
-        return await self.__get_days_with_free_seats__(
+        return await self.__get_day_list_with_free_seats__(
             await self.__get_item_list_for_filter__(database.AvailableDay)
         )
 
 
     async def get_days_by_period(self, request: dto.AvailableDayListInPeriodRequest) -> dto.AvailableDayList:
-        return await self.__get_days_with_free_seats__(
+        return await self.__get_day_list_with_free_seats__(
             await self.__get_item_list_for_filter__(
                 database.AvailableDay,
                 [
@@ -43,14 +43,16 @@ class AvailableDaysService(BaseService):
 
 
     async def get_day_by_code(self, request: dto.ItemByCodeRequest) -> dto.AvailableDayDetailed:
-        return await self.__get_day_with_free_seats__(
-            await self.__get_one_item_for_filter__(
-                database.AvailableDay.code,
-                [
-                    database.AvailableDay.code == request.code
-                ]
-            )
+        available_day = await self.__get_one_item_for_filter__(
+            database.AvailableDay, 
+            [
+                database.AvailableDay.code == request.code
+            ]
         )
+        if available_day is None:
+            raise GetDataCorrectException('Запрашиваемый день не найден')
+
+        return await self.__get_day_with_free_seats__(available_day)
 
 
     async def delete_day(self, request: dto.ItemsDeleteRequest) -> dto.ItemsDeleted:
@@ -58,12 +60,12 @@ class AvailableDaysService(BaseService):
 
 
     async def __get_day_list_with_free_seats__(self, db_day_list: List[database.AvailableDay]) -> dto.AvailableDayList:
-        task_list = []
+        result_list = []
         for db_day in db_day_list:
-            task_list.append(self.__get_day_with_free_seats__(db_day))
+            result_list.append(await self.__get_day_with_free_seats__(db_day))
         
         return dto.AvailableDayList(
-            day_list=asyncio.gather(*task_list).result()
+            day_list=result_list
         )
 
     

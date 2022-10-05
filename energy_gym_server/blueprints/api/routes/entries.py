@@ -68,7 +68,7 @@ async def get_entry_list_for_student(
     return jsonify(data.dict())
 
 
-@api.get('/entries/get-for-code')
+@api.get('/entries/get-by-code')
 @inject
 async def get_entry_for_code(
     service: EntriesService = Provide[Application.services.entries]

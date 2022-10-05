@@ -4,7 +4,7 @@ from sqlalchemy import select, func
 
 from .abc import BaseService
 from ..models import dto, database
-from ..exceptions import DataCorrectException
+from ..exceptions import AddDataCorrectException, GetDataCorrectException
 
 
 class EntriesService(BaseService):
@@ -12,15 +12,15 @@ class EntriesService(BaseService):
     async def add_entry(self, request: dto.AddEntryRequest) -> dto.EntryModel:
         db_selected_day = await self.__get_one_item_for_filter__(database.AvailableDay, [database.AvailableDay.code == request.selected_day])
         if db_selected_day is None:
-            raise DataCorrectException('На указанный день возможные записи отсутствуют')
+            raise AddDataCorrectException('На указанный день возможные записи отсутствуют')
         if await self.__get_one_item_for_filter__(database.Student, [database.Student.code == request.student_code]) is None:
-            raise DataCorrectException('Указанный студент не найден')
+            raise GetDataCorrectException('Указанный студент не найден')
 
         if await self.__get_one_item_for_filter__(database.Entry, [
                 database.Entry.student == request.student_code,
                 database.Entry.selected_day == request.selected_day
             ]) is not None:
-            raise DataCorrectException('Такая запись уже существует')
+            raise AddDataCorrectException('Такая запись уже существует')
 
         entries_day = (
             await self.session.execute(
@@ -34,7 +34,7 @@ class EntriesService(BaseService):
         ).one()
 
         if db_selected_day.number_of_students - entries_day.count <= 0:
-            raise DataCorrectException('На данный день отсутствуют свободные места')
+            raise AddDataCorrectException('На данный день отсутствуют свободные места')
 
         entry = database.Entry(
             create_time=datetime.now(),
@@ -80,10 +80,20 @@ class EntriesService(BaseService):
     async def get_detailed_entry(self, request: dto.ItemByCodeRequest) -> dto.DetailedEntry:
         db_entry = await self.__get_one_item_for_filter__(database.Entry, [database.Entry.code == request.code])
         if db_entry is None:
-            raise DataCorrectException('Запрашиваемая запись не найдена')
+            raise GetDataCorrectException('Запрашиваемая запись не найдена')
         
-        db_selected_day = await self.__get_one_item_for_filter__(database.AvailableDay, [database.AvailableDay.code == db_entry.selected_day])
-        db_student = await self.__get_one_item_for_filter__(database.Student, [database.Student.code == db_entry.student])
+        db_selected_day = await self.__get_one_item_for_filter__(
+            database.AvailableDay, 
+            [
+                database.AvailableDay.code == db_entry.selected_day
+            ]
+        )
+        db_student = await self.__get_one_item_for_filter__(
+            database.Student, 
+            [
+                database.Student.code == db_entry.student
+            ]
+        )
 
         return dto.DetailedEntry(
             code=db_entry.code,
