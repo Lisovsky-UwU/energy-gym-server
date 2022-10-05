@@ -1,6 +1,6 @@
 from typing import List
 from sqlalchemy.future import select
-from sqlalchemy import func
+from sqlalchemy import func, any_
 
 from .abc import BaseService
 from ..models import dto, database
@@ -38,6 +38,17 @@ class AvailableDaysService(BaseService):
             raise GetDataCorrectException('Запрашиваемый день не найден')
 
         return await self.__get_day_with_free_seats__(available_day)
+
+
+    async def get_day_list_by_codes(self, request: dto.ItemListByCodesRequest) -> dto.AvailableDayList:
+        return await self.__get_day_list_with_free_seats__(
+            await self.__get_item_list_for_filter__(
+                database.AvailableDay,
+                [
+                    database.AvailableDay.code == any_(request.code_list)
+                ]
+            )
+        )
 
 
     async def add_day(self, request: dto.AvailableDayAddRequest) -> dto.AvailableDayBase:

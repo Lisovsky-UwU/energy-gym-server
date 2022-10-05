@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import List
-from sqlalchemy import select, func
+from sqlalchemy import select, func, any_
 
 from .abc import BaseService
 from ..models import dto, database
@@ -34,24 +34,14 @@ class EntriesService(BaseService):
         if db_entry is None:
             raise GetDataCorrectException('Запрашиваемая запись не найдена')
         
-        db_selected_day = await self.__get_one_item_for_filter__(
-            database.AvailableDay, 
-            [
-                database.AvailableDay.code == db_entry.selected_day
-            ]
-        )
-        db_student = await self.__get_one_item_for_filter__(
-            database.Student, 
-            [
-                database.Student.code == db_entry.student
-            ]
-        )
+        return await self.__get_detailed_entry__(db_entry)
 
-        return dto.EntryDetailed(
-            code=db_entry.code,
-            create_time=db_entry.create_time,
-            selected_day=db_selected_day.__dict__,
-            student=db_student.__dict__
+    
+    async def get_entry_list_by_codes(self, request: dto.ItemListByCodesRequest) -> dto.EntryList:
+        return await self.__get_entry_list_for_filter__(
+            [
+                database.Entry.code == any_(request.code_list)
+            ]
         )
 
 
@@ -101,6 +91,28 @@ class EntriesService(BaseService):
 
     async def delete_entry(self, request: dto.ItemsDeleteRequest) -> dto.ItemsDeleted:
         return await self.__delete_items__(database.Entry, request)
+
+
+    async def __get_detailed_entry__(self, db_entry: database.Entry) -> dto.EntryDetailed:
+        db_selected_day = await self.__get_one_item_for_filter__(
+            database.AvailableDay, 
+            [
+                database.AvailableDay.code == db_entry.selected_day
+            ]
+        )
+        db_student = await self.__get_one_item_for_filter__(
+            database.Student, 
+            [
+                database.Student.code == db_entry.student
+            ]
+        )
+
+        return dto.EntryDetailed(
+            code=db_entry.code,
+            create_time=db_entry.create_time,
+            selected_day=db_selected_day.__dict__,
+            student=db_student.__dict__
+        )
 
 
     async def __get_entry_list_for_filter__(self, filter: List = []) -> dto.EntryList:

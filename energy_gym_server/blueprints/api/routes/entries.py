@@ -52,6 +52,18 @@ async def get_entry_for_code(
     return jsonify(data.dict())
 
 
+@api.get('/entries/get-list-by-codes')
+@inject
+async def get_entry_list_for_codes(
+    service: EntriesService = Provide[Application.services.entries]
+):
+    body = await request.get_json()
+    request_dto = dto.ItemListByCodesRequest(**body)
+
+    data = await service.get_entry_list_by_codes(request_dto)
+    return jsonify(data.dict())
+
+
 @api.post('/entries/add')
 @inject
 async def add_entry(

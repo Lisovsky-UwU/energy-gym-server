@@ -18,5 +18,5 @@ class ItemByCodeRequest(BaseModel):
     code: int
 
 
-class ItemListBuCodesRequest(BaseModel):
+class ItemListByCodesRequest(BaseModel):
     code_list: List[int]

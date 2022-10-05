@@ -1,3 +1,5 @@
+from sqlalchemy import any_
+
 from .abc import BaseService
 from ..models import dto, database
 from ..exceptions import AddDataCorrectException, GetDataCorrectException
@@ -17,7 +19,7 @@ class StudentsService(BaseService):
             ]
         )
     
-    
+
     async def get_by_code(self, request: dto.ItemByCodeRequest) -> dto.StudentModel:
         student = await self.__get_one_item_for_filter__(
             database.Student, 
@@ -29,6 +31,24 @@ class StudentsService(BaseService):
             raise GetDataCorrectException('Студент с запрашиваемым кодом не найден')
 
         return dto.StudentModel(**student.__dict__)
+
+
+    async def get_list_by_codes(self, request: dto.ItemListByCodesRequest) -> dto.StudentList:
+        return dto.StudentList(
+            student_list=[
+                dto.StudentModel(
+                    **db_student.__dict__
+                )
+                for db_student in (
+                    await self.__get_item_list_for_filter__(
+                        database.Student, 
+                        [
+                            database.Student.code == any_(request.code_list)
+                        ]
+                    )
+                )
+            ]
+        )
 
 
     async def add_student(self, request: dto.StudentAddRequest) -> dto.StudentModel:
