@@ -9,6 +9,52 @@ from ..exceptions import AddDataCorrectException, GetDataCorrectException
 
 class EntriesService(BaseService):
     
+    async def get_list_all_entry(self) -> dto.EntryList:
+        return await self.__get_entry_list_for_filter__()
+
+
+    async def get_entries_in_day(self, request: dto.EntryListInDayRequest) -> dto.EntryList:
+        return await self.__get_entry_list_for_filter__(
+            [
+                database.Entry.selected_day == request.available_day
+            ]
+        )
+
+    
+    async def get_entries_for_student(self, request: dto.EntryListStudentRequest) -> dto.EntryList:
+        return await self.__get_entry_list_for_filter__(
+            [
+                database.Entry.student == request.student_code
+            ]
+        )
+
+
+    async def get_detailed_entry(self, request: dto.ItemByCodeRequest) -> dto.EntryDetailed:
+        db_entry = await self.__get_one_item_for_filter__(database.Entry, [database.Entry.code == request.code])
+        if db_entry is None:
+            raise GetDataCorrectException('Запрашиваемая запись не найдена')
+        
+        db_selected_day = await self.__get_one_item_for_filter__(
+            database.AvailableDay, 
+            [
+                database.AvailableDay.code == db_entry.selected_day
+            ]
+        )
+        db_student = await self.__get_one_item_for_filter__(
+            database.Student, 
+            [
+                database.Student.code == db_entry.student
+            ]
+        )
+
+        return dto.EntryDetailed(
+            code=db_entry.code,
+            create_time=db_entry.create_time,
+            selected_day=db_selected_day.__dict__,
+            student=db_student.__dict__
+        )
+
+
     async def add_entry(self, request: dto.EntryAddRequest) -> dto.EntryModel:
         db_selected_day = await self.__get_one_item_for_filter__(database.AvailableDay, [database.AvailableDay.code == request.selected_day])
         if db_selected_day is None:
@@ -53,54 +99,8 @@ class EntriesService(BaseService):
         )
 
 
-    async def get_list_all_entry(self) -> dto.EntryList:
-        return await self.__get_entry_list_for_filter__()
-
-
     async def delete_entry(self, request: dto.ItemsDeleteRequest) -> dto.ItemsDeleted:
         return await self.__delete_items__(database.Entry, request)
-
-
-    async def get_entries_in_day(self, request: dto.EntryListInDayRequest) -> dto.EntryList:
-        return await self.__get_entry_list_for_filter__(
-            [
-                database.Entry.selected_day == request.available_day
-            ]
-        )
-
-    
-    async def get_entries_for_student(self, request: dto.EntryListStudentRequest) -> dto.EntryList:
-        return await self.__get_entry_list_for_filter__(
-            [
-                database.Entry.student == request.student_code
-            ]
-        )
-
-
-    async def get_detailed_entry(self, request: dto.ItemByCodeRequest) -> dto.EntryDetailed:
-        db_entry = await self.__get_one_item_for_filter__(database.Entry, [database.Entry.code == request.code])
-        if db_entry is None:
-            raise GetDataCorrectException('Запрашиваемая запись не найдена')
-        
-        db_selected_day = await self.__get_one_item_for_filter__(
-            database.AvailableDay, 
-            [
-                database.AvailableDay.code == db_entry.selected_day
-            ]
-        )
-        db_student = await self.__get_one_item_for_filter__(
-            database.Student, 
-            [
-                database.Student.code == db_entry.student
-            ]
-        )
-
-        return dto.EntryDetailed(
-            code=db_entry.code,
-            create_time=db_entry.create_time,
-            selected_day=db_selected_day.__dict__,
-            student=db_student.__dict__
-        )
 
 
     async def __get_entry_list_for_filter__(self, filter: List = []) -> dto.EntryList:

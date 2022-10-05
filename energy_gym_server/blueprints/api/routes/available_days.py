@@ -16,6 +16,32 @@ async def get_available_day_list(
     return jsonify(data.dict())
 
 
+@api.get('/available-days/get-list-in-period')
+@inject
+async def get_available_day_list_in_period(
+    service: AvailableDaysService = Provide[Application.services.available_day]
+):
+    body = await request.get_json()
+    request_dto = dto.AvailableDayListInPeriodRequest(**body)
+
+    data = await service.get_days_by_period(request_dto)
+
+    return jsonify(data.dict())
+
+
+@api.get('available-days/get-by-code')
+@inject
+async def get_abailable_day_by_code(
+    service: AvailableDaysService = Provide[Application.services.available_day]
+):
+    body = await request.get_json()
+    request_dto = dto.ItemByCodeRequest(**body)
+
+    data = await service.get_day_by_code(request_dto)
+
+    return jsonify(data.dict())
+
+
 @api.post('/available-days/add')
 @inject
 async def add_day(
@@ -30,19 +56,6 @@ async def add_day(
     return jsonify(data.dict())
 
 
-@api.get('/available-days/get-list-in-period')
-@inject
-async def get_available_day_list_in_period(
-    service: AvailableDaysService = Provide[Application.services.available_day]
-):
-    body = await request.get_json()
-    request_dto = dto.AvailableDayListInPeriodRequest(**body)
-
-    data = await service.get_days_by_period(request_dto)
-
-    return jsonify(data.dict())
-
-
 @api.delete('/available-days/delete')
 @inject
 async def delete_available_day(
@@ -53,18 +66,5 @@ async def delete_available_day(
 
     data = await service.delete_day(request_dto)
     await service.commit()
-
-    return jsonify(data.dict())
-
-
-@api.get('available-days/get-by-code')
-@inject
-async def get_abailable_day_by_code(
-    service: AvailableDaysService = Provide[Application.services.available_day]
-):
-    body = await request.get_json()
-    request_dto = dto.ItemByCodeRequest(**body)
-
-    data = await service.get_day_by_code(request_dto)
 
     return jsonify(data.dict())

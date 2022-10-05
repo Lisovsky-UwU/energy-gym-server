@@ -30,20 +30,6 @@ T = TypeVar('T')
 
 class BaseService(AsyncDataBaseService):
 
-    async def __delete_items__(self, type_table: T, request: dto.ItemsDeleteRequest):
-        code_list_for_delete = []
-        if request.code is not None:
-            code_list_for_delete.append(request.code)
-        if request.code_list is not None:
-            code_list_for_delete = request.code_list
-
-        await self.__delete_items_by_codes__(type_table, code_list_for_delete)
-
-        return dto.ItemsDeleted(
-            result_text=f'Записи с кодами {code_list_for_delete} успешно удалены'
-        )
-
-
     async def __get_one_item_for_filter__(self, type_table: T, filter: List = []) -> T:
         return await self.session.scalar(
             select(type_table)
@@ -57,6 +43,20 @@ class BaseService(AsyncDataBaseService):
                 select(type_table)
                 .filter(*filter)
             )
+        )
+
+
+    async def __delete_items__(self, type_table: T, request: dto.ItemsDeleteRequest):
+        code_list_for_delete = []
+        if request.code is not None:
+            code_list_for_delete.append(request.code)
+        if request.code_list is not None:
+            code_list_for_delete = request.code_list
+
+        await self.__delete_items_by_codes__(type_table, code_list_for_delete)
+
+        return dto.ItemsDeleted(
+            result_text=f'Записи с кодами {code_list_for_delete} успешно удалены'
         )
 
 

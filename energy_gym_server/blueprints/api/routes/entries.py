@@ -7,40 +7,12 @@ from energy_gym_server.models import dto
 from energy_gym_server.containers import Application
 
 
-@api.post('/entries/add')
-@inject
-async def add_entry(
-    service: EntriesService = Provide[Application.services.entries]
-):
-    body = await request.get_json()
-    request_dto = dto.EntryAddRequest(**body)
-
-    data = await service.add_entry(request_dto)
-    await service.commit()
-
-    return jsonify(data.dict())
-
-
 @api.get('/entries/get-list')
 @inject
 async def get_entry_list(
     service: EntriesService = Provide[Application.services.entries]
 ):
     data = await service.get_list_all_entry()
-    return jsonify(data.dict())
-
-
-@api.delete('/entries/delete')
-@inject
-async def delete_entry(
-    service: EntriesService = Provide[Application.services.entries]
-):
-    body = await request.get_json()
-    request_dto = dto.ItemsDeleteRequest(**body)
-
-    data = await service.delete_entry(request_dto)
-    await service.commit()
-
     return jsonify(data.dict())
 
 
@@ -77,4 +49,32 @@ async def get_entry_for_code(
     request_dto = dto.ItemByCodeRequest(**body)
 
     data = await service.get_detailed_entry(request_dto)
+    return jsonify(data.dict())
+
+
+@api.post('/entries/add')
+@inject
+async def add_entry(
+    service: EntriesService = Provide[Application.services.entries]
+):
+    body = await request.get_json()
+    request_dto = dto.EntryAddRequest(**body)
+
+    data = await service.add_entry(request_dto)
+    await service.commit()
+
+    return jsonify(data.dict())
+
+
+@api.delete('/entries/delete')
+@inject
+async def delete_entry(
+    service: EntriesService = Provide[Application.services.entries]
+):
+    body = await request.get_json()
+    request_dto = dto.ItemsDeleteRequest(**body)
+
+    data = await service.delete_entry(request_dto)
+    await service.commit()
+
     return jsonify(data.dict())
