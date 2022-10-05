@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from datetime import date, datetime
 
 
-class Student(BaseModel):
+class StudentModel(BaseModel):
     code: int
     name: str
     group: str

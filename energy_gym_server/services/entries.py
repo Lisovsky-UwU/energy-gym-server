@@ -9,7 +9,7 @@ from ..exceptions import AddDataCorrectException, GetDataCorrectException
 
 class EntriesService(BaseService):
     
-    async def add_entry(self, request: dto.AddEntryRequest) -> dto.EntryModel:
+    async def add_entry(self, request: dto.EntryAddRequest) -> dto.EntryModel:
         db_selected_day = await self.__get_one_item_for_filter__(database.AvailableDay, [database.AvailableDay.code == request.selected_day])
         if db_selected_day is None:
             raise AddDataCorrectException('На указанный день возможные записи отсутствуют')
@@ -61,7 +61,7 @@ class EntriesService(BaseService):
         return await self.__delete_items__(database.Entry, request)
 
 
-    async def get_entries_in_day(self, request: dto.EntriesInDayRequest) -> dto.EntryList:
+    async def get_entries_in_day(self, request: dto.EntryListInDayRequest) -> dto.EntryList:
         return await self.__get_entry_list_for_filter__(
             [
                 database.Entry.selected_day == request.available_day
@@ -69,7 +69,7 @@ class EntriesService(BaseService):
         )
 
     
-    async def get_entries_for_student(self, request: dto.StudentEntriesRequest) -> dto.EntryList:
+    async def get_entries_for_student(self, request: dto.EntryListStudentRequest) -> dto.EntryList:
         return await self.__get_entry_list_for_filter__(
             [
                 database.Entry.student == request.student_code
@@ -77,7 +77,7 @@ class EntriesService(BaseService):
         )
 
 
-    async def get_detailed_entry(self, request: dto.ItemByCodeRequest) -> dto.DetailedEntry:
+    async def get_detailed_entry(self, request: dto.ItemByCodeRequest) -> dto.EntryDetailed:
         db_entry = await self.__get_one_item_for_filter__(database.Entry, [database.Entry.code == request.code])
         if db_entry is None:
             raise GetDataCorrectException('Запрашиваемая запись не найдена')
@@ -95,7 +95,7 @@ class EntriesService(BaseService):
             ]
         )
 
-        return dto.DetailedEntry(
+        return dto.EntryDetailed(
             code=db_entry.code,
             create_time=db_entry.create_time,
             selected_day=db_selected_day.__dict__,

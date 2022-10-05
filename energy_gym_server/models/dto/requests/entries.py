@@ -1,14 +1,14 @@
 from pydantic import BaseModel
 
 
-class AddEntryRequest(BaseModel):
+class EntryAddRequest(BaseModel):
     selected_day: int
     student_code: int
 
 
-class EntriesInDayRequest(BaseModel):
+class EntryListInDayRequest(BaseModel):
     available_day: int
 
 
-class StudentEntriesRequest(BaseModel):
+class EntryListStudentRequest(BaseModel):
     student_code: int

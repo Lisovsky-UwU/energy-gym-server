@@ -1,5 +1,5 @@
-from .. import Student
+from .. import StudentModel
 
 
-class StudentAddRequest(Student):
+class StudentAddRequest(StudentModel):
     pass

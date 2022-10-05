@@ -16,3 +16,7 @@ class ItemsDeleteRequest(BaseModel):
 
 class ItemByCodeRequest(BaseModel):
     code: int
+
+
+class ItemListBuCodesRequest(BaseModel):
+    code_list: List[int]

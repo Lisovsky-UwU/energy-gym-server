@@ -1,8 +1,8 @@
 from typing import List
 from pydantic import BaseModel
 
-from .. import Student
+from .. import StudentModel
 
 
 class StudentList(BaseModel):
-    student_list: List[Student]
+    student_list: List[StudentModel]
