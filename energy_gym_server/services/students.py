@@ -1,4 +1,4 @@
-from sqlalchemy import any_
+from sqlalchemy.sql import select, any_
 
 from .abc import BaseService
 from ..models import dto, database
@@ -11,40 +11,41 @@ class StudentsService(BaseService):
         return dto.StudentList(
             student_list=[
                 dto.StudentModel(
-                    **db_student.__dict__
+                    code=db_student.code,
+                    name=db_student.name,
+                    group=db_student.group
                 )
                 for db_student in (
-                    await self.__get_item_list_for_filter__(database.Student) 
+                    await self.session.scalars(select(database.Student))
                 )
             ]
         )
     
 
     async def get_by_code(self, request: dto.ItemByCodeRequest) -> dto.StudentModel:
-        student = await self.__get_one_item_for_filter__(
-            database.Student, 
-            [
-                database.Student.code == request.code
-            ]
-        )
+        student = await self.session.get(database.Student, request.code)
         if student is None:
             raise GetDataCorrectException('Студент с запрашиваемым кодом не найден')
 
-        return dto.StudentModel(**student.__dict__)
+        return dto.StudentModel(
+            code=student.code,
+            name=student.name,
+            group=student.group
+        )
 
 
     async def get_list_by_codes(self, request: dto.ItemListByCodesRequest) -> dto.StudentList:
         return dto.StudentList(
             student_list=[
                 dto.StudentModel(
-                    **db_student.__dict__
+                    code=db_student.code,
+                    name=db_student.name,
+                    group=db_student.group
                 )
                 for db_student in (
-                    await self.__get_item_list_for_filter__(
-                        database.Student, 
-                        [
-                            database.Student.code == any_(request.code_list)
-                        ]
+                    await self.session.scalars(
+                        select(database.Student)
+                        .where(database.Student.code == any_(request.code_list))
                     )
                 )
             ]
@@ -52,7 +53,7 @@ class StudentsService(BaseService):
 
 
     async def add_student(self, request: dto.StudentAddRequest) -> dto.StudentModel:
-        if await self.__get_one_item_for_filter__(database.Student, [database.Student.code == request.code]) is not None:
+        if await self.session.get(database.Student, request.code) is not None:
             raise AddDataCorrectException('Студент с данным идентефикатором уже существует')
 
         student = database.Student(**request.dict())

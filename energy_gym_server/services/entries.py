@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import List
-from sqlalchemy import select, func, any_
+from sqlalchemy.sql import select, func, any_
 
 from .abc import BaseService
 from ..models import dto, database
@@ -30,7 +30,7 @@ class EntriesService(BaseService):
 
 
     async def get_detailed_entry(self, request: dto.ItemByCodeRequest) -> dto.EntryDetailed:
-        db_entry = await self.__get_one_item_for_filter__(database.Entry, [database.Entry.code == request.code])
+        db_entry = await self.session.get(database.Entry, request.code)
         if db_entry is None:
             raise GetDataCorrectException('Запрашиваемая запись не найдена')
         
@@ -46,16 +46,17 @@ class EntriesService(BaseService):
 
 
     async def add_entry(self, request: dto.EntryAddRequest) -> dto.EntryModel:
-        db_selected_day = await self.__get_one_item_for_filter__(database.AvailableDay, [database.AvailableDay.code == request.selected_day])
+        db_selected_day = await self.session.get(database.AvailableDay, request.selected_day)
         if db_selected_day is None:
             raise AddDataCorrectException('На указанный день возможные записи отсутствуют')
-        if await self.__get_one_item_for_filter__(database.Student, [database.Student.code == request.student_code]) is None:
+        if await self.session.get(database.Student, request.student_code) is None:
             raise GetDataCorrectException('Указанный студент не найден')
 
-        if await self.__get_one_item_for_filter__(database.Entry, [
-                database.Entry.student == request.student_code,
-                database.Entry.selected_day == request.selected_day
-            ]) is not None:
+        if await self.session.scalar(
+            select(database.Entry)
+            .where(database.Entry.student == request.student_code)
+            .where(database.Entry.selected_day == request.selected_day)
+        ) is not None:
             raise AddDataCorrectException('Такая запись уже существует')
 
         entries_day = (
@@ -94,35 +95,39 @@ class EntriesService(BaseService):
 
 
     async def __get_detailed_entry__(self, db_entry: database.Entry) -> dto.EntryDetailed:
-        db_selected_day = await self.__get_one_item_for_filter__(
-            database.AvailableDay, 
-            [
-                database.AvailableDay.code == db_entry.selected_day
-            ]
-        )
-        db_student = await self.__get_one_item_for_filter__(
-            database.Student, 
-            [
-                database.Student.code == db_entry.student
-            ]
-        )
+        db_selected_day = await self.session.get(database.AvailableDay, db_entry.selected_day)
+        db_student = await self.session.get(database.Student, db_entry.student)
 
         return dto.EntryDetailed(
             code=db_entry.code,
             create_time=db_entry.create_time,
-            selected_day=db_selected_day.__dict__,
-            student=db_student.__dict__
+            selected_day=dto.AvailableDayBase(
+                code=db_selected_day.code,
+                day=db_selected_day.day,
+                number_of_students=db_selected_day.number_of_students
+            ),
+            student=dto.StudentModel(
+                code=db_student.code,
+                name=db_student.name,
+                group=db_student.group
+            )
         )
 
 
-    async def __get_entry_list_for_filter__(self, filter: List = []) -> dto.EntryList:
+    async def __get_entry_list_for_filter__(self, filter_: List = []) -> dto.EntryList:
         return dto.EntryList(
             entry_list=[
                 dto.EntryModel(
-                    **db_entry.__dict__
+                    code=db_entry.code,
+                    create_time=db_entry.create_time,
+                    selected_day=db_entry.selected_day,
+                    student=db_entry.student
                 )
                 for db_entry in (
-                    await self.__get_item_list_for_filter__(database.Entry, filter)
+                    await self.session.scalars(
+                        select(database.Entry)
+                        .filter(*filter_)
+                    )
                 )
             ]
         )

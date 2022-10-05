@@ -1,6 +1,6 @@
 from typing import List
 from sqlalchemy.future import select
-from sqlalchemy import func, any_
+from sqlalchemy.sql import func, any_
 
 from .abc import BaseService
 from ..models import dto, database
@@ -11,29 +11,24 @@ class AvailableDaysService(BaseService):
 
     async def get_all_days(self) -> dto.AvailableDayList:
         return await self.__get_day_list_with_free_seats__(
-            await self.__get_item_list_for_filter__(database.AvailableDay)
+            await self.session.scalars(
+                select(database.AvailableDay)
+            )
         )
 
 
     async def get_days_by_period(self, request: dto.AvailableDayListInPeriodRequest) -> dto.AvailableDayList:
         return await self.__get_day_list_with_free_seats__(
-            await self.__get_item_list_for_filter__(
-                database.AvailableDay,
-                [
-                    database.AvailableDay.day >= request.date_begin, 
-                    database.AvailableDay.day <= request.date_end
-                ]
+            await self.session.scalars(
+                select(database.AvailableDay)
+                .where(database.AvailableDay.day >= request.date_begin)
+                .where(database.AvailableDay.day <= request.date_end)
             )
         )
 
 
     async def get_day_by_code(self, request: dto.ItemByCodeRequest) -> dto.AvailableDayDetailed:
-        available_day = await self.__get_one_item_for_filter__(
-            database.AvailableDay, 
-            [
-                database.AvailableDay.code == request.code
-            ]
-        )
+        available_day = await self.session.get(database.AvailableDay, request.code)
         if available_day is None:
             raise GetDataCorrectException('Запрашиваемый день не найден')
 
@@ -42,17 +37,15 @@ class AvailableDaysService(BaseService):
 
     async def get_day_list_by_codes(self, request: dto.ItemListByCodesRequest) -> dto.AvailableDayList:
         return await self.__get_day_list_with_free_seats__(
-            await self.__get_item_list_for_filter__(
-                database.AvailableDay,
-                [
-                    database.AvailableDay.code == any_(request.code_list)
-                ]
+            await self.session.scalars(
+                select(database.AvailableDay)
+                .where(database.AvailableDay.code == any_(request.code_list))
             )
         )
 
 
     async def add_day(self, request: dto.AvailableDayAddRequest) -> dto.AvailableDayBase:
-        if await self.__get_one_item_for_filter__(database.AvailableDay, [database.AvailableDay.day == request.day]) is not None:
+        if await self.session.get(database.AvailableDay, {"day": request.day}) is not None:
             raise AddDataCorrectException('Запись на данный день уже существует')
 
         available_day = database.AvailableDay(**request.dict())

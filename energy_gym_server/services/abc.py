@@ -1,7 +1,7 @@
 import asyncio
 from typing import TypeVar, List
 from sqlalchemy.orm import Session
-from sqlalchemy import select, any_
+from sqlalchemy.sql import select, any_
 
 from ..exceptions import DataBaseConnectionException
 from ..models import dto
@@ -30,22 +30,6 @@ T = TypeVar('T')
 
 class BaseService(AsyncDataBaseService):
 
-    async def __get_one_item_for_filter__(self, type_table: T, filter: List = []) -> T:
-        return await self.session.scalar(
-            select(type_table)
-            .filter(*filter)
-        )
-
-
-    async def __get_item_list_for_filter__(self, type_table: T, filter: List = []) -> List[T]:
-        return list(
-            await self.session.scalars(
-                select(type_table)
-                .filter(*filter)
-            )
-        )
-
-
     async def __delete_items__(self, type_table: T, request: dto.ItemsDeleteRequest):
         code_list_for_delete = []
         if request.code is not None:
@@ -61,11 +45,9 @@ class BaseService(AsyncDataBaseService):
 
 
     async def __delete_items_by_codes__(self, type_table: T, code_list: List[int]) -> None:
-        db_item_list = await self.__get_item_list_for_filter__(
-            type_table,
-            [
-                type_table.code == any_(code_list)
-            ]
+        db_item_list = await self.session.scalar(
+            select(type_table)
+            .where(type_table.code == any_(code_list))
         )
         
         delete_task_list = []
