@@ -42,3 +42,16 @@ async def delete_student(
     await service.commit()
 
     return jsonify(data.dict())
+
+
+@api.get('/students/get-by-code')
+@inject
+async def get_student_by_code(
+    service: StudentsService = Provide[Application.services.students]
+):
+    body = await request.get_json()
+    request_dto = dto.ItemByCodeRequest(**body)
+
+    data = await service.get_by_code(request_dto)
+
+    return jsonify(data.dict())

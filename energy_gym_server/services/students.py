@@ -1,13 +1,13 @@
 from .abc import BaseService
 from ..models import dto, database
-from ..exceptions import DataCorrectException
+from ..exceptions import AddDataCorrectException, GetDataCorrectException
 
 
 class StudentsService(BaseService):
 
     async def add_student(self, request: dto.StudentAddRequest) -> dto.Student:
         if await self.__get_one_item_for_filter__(database.Student, [database.Student.code == request.code]) is not None:
-            raise DataCorrectException('Студент с данным идентефикатором уже существует')
+            raise AddDataCorrectException('Студент с данным идентефикатором уже существует')
 
         student = database.Student(**request.dict())
         self.session.add(student)
@@ -31,6 +31,19 @@ class StudentsService(BaseService):
                 )
             ]
         )
+
+    
+    async def get_by_code(self, request: dto.ItemByCodeRequest) -> dto.Student:
+        student = await self.__get_one_item_for_filter__(
+            database.Student, 
+            [
+                database.Student.code == request.code
+            ]
+        )
+        if student is None:
+            raise GetDataCorrectException('Студент с запрашиваемым кодом не найден')
+
+        return dto.Student(**student.__dict__)
 
 
     async def delete_student(self, request: dto.ItemsDeleteRequest) -> dto.ItemsDeleted:
