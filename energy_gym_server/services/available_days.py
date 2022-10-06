@@ -45,7 +45,10 @@ class AvailableDaysService(BaseService):
 
 
     async def add_day(self, request: dto.AvailableDayAddRequest) -> dto.AvailableDayBase:
-        if await self.session.get(database.AvailableDay, {"day": request.day}) is not None:
+        if await self.session.scalar(
+            select(database.AvailableDay)
+            .where(database.AvailableDay.day == request.day)
+        ) is not None:
             raise AddDataCorrectException('Запись на данный день уже существует')
 
         available_day = database.AvailableDay(**request.dict())
