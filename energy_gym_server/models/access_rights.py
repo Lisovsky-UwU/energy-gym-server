@@ -4,6 +4,14 @@ class AvailableDayAccess:
     GET = 'available day get'
     DELETE = 'available day delete'
 
+    @property
+    def all_rights():
+        return [
+            AvailableDayAccess.ADD,
+            AvailableDayAccess.GET,
+            AvailableDayAccess.DELETE
+        ]
+
 
 class StudentAccess:
     '''Права доступов для информации по студентам'''
@@ -11,6 +19,15 @@ class StudentAccess:
     ADD = 'student add'
     GET = 'student get'
     DELETE = 'student delete'
+
+    @property
+    def all_rights():
+        return [
+            StudentAccess.EDITANY,
+            StudentAccess.ADD,
+            StudentAccess.GET,
+            StudentAccess.DELETE
+        ]
 
 
 class EntyAccess:
@@ -20,9 +37,26 @@ class EntyAccess:
     GET = 'entry get'
     DELETE = 'entry delete'
 
+    @property
+    def all_rights():
+        return [
+            EntyAccess.EDITANY,
+            EntyAccess.ADD,
+            EntyAccess.GET,
+            EntyAccess.DELETE
+        ]
+
 
 class AccesRights:
     '''Права доступов для редактирования и получения данных'''
     AVAILABLEDAY = AvailableDayAccess
     STUDENT = StudentAccess
     ENTRY = EntyAccess
+
+    @property
+    def all_rights():
+        return [
+            *AccesRights.AVAILABLEDAY.all_rights,
+            *AccesRights.STUDENT.all_rights,
+            *AccesRights.ENTRY.all_rights
+        ]
