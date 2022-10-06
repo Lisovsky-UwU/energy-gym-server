@@ -1,4 +1,5 @@
-from sqlalchemy.sql import select, any_
+from sqlalchemy.future import select
+from sqlalchemy.sql import any_
 
 from .abc import BaseService
 from ..models import dto, database

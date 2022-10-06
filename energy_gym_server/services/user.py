@@ -1,6 +1,6 @@
 import functools
 from quart import request
-from sqlalchemy.sql import select
+from sqlalchemy.future import select
 from passlib.totp import generate_secret
 
 from .abc import BaseService

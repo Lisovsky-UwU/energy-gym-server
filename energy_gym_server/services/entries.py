@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import List
-from sqlalchemy.sql import select, func, any_
+from sqlalchemy.sql import func, any_
+from sqlalchemy.future import select
 
 from .abc import BaseService
 from ..models import dto, database

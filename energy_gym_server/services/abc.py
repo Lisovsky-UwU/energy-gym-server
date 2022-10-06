@@ -1,7 +1,8 @@
 import asyncio
 from typing import TypeVar, List
 from sqlalchemy.orm import Session
-from sqlalchemy.sql import select, any_
+from sqlalchemy.sql import any_
+from sqlalchemy.future import select
 
 from ..exceptions import DataBaseConnectionException
 from ..models import dto
