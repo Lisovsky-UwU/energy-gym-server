@@ -18,6 +18,7 @@ async def get_available_day_list(
 
 
 @api.get('/available-days/get-list-in-period')
+@UserService.check_acces(AccesRights.AVAILABLEDAY.GET)
 @inject
 async def get_available_day_list_in_period(
     service: AvailableDaysService = Provide[Application.services.available_day]
@@ -31,6 +32,7 @@ async def get_available_day_list_in_period(
 
 
 @api.get('available-days/get-by-code')
+@UserService.check_acces(AccesRights.AVAILABLEDAY.GET)
 @inject
 async def get_abailable_day_by_code(
     service: AvailableDaysService = Provide[Application.services.available_day]
@@ -44,6 +46,7 @@ async def get_abailable_day_by_code(
 
 
 @api.get('available-days/get-list-by-codes')
+@UserService.check_acces(AccesRights.AVAILABLEDAY.GET)
 @inject
 async def get_available_day_list_by_codes(
     service: AvailableDaysService = Provide[Application.services.available_day]
@@ -57,6 +60,7 @@ async def get_available_day_list_by_codes(
 
 
 @api.post('/available-days/add')
+@UserService.check_acces(AccesRights.AVAILABLEDAY.ADD)
 @inject
 async def add_day(
     service: AvailableDaysService = Provide[Application.services.available_day]
@@ -71,6 +75,7 @@ async def add_day(
 
 
 @api.delete('/available-days/delete')
+@UserService.check_acces(AccesRights.AVAILABLEDAY.DELETE)
 @inject
 async def delete_available_day(
     service: AvailableDaysService = Provide[Application.services.available_day]
