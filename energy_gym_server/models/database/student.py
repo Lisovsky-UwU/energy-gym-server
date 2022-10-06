@@ -12,3 +12,4 @@ class Student(Base):
     group = Column(String(20), nullable=False)
 
     entries = relationship('Entry', uselist=False, back_populates='students')
+    token = relationship('Token', userlist=False, back_populates='students')
