@@ -14,4 +14,4 @@ class Student(Base):
     acces_rights = Column(ARRAY(String), nullable=False)
 
     entries = relationship('Entry', uselist=False, back_populates='students')
-    token = relationship('Token', userlist=False, back_populates='students')
+    token = relationship('Token', uselist=False, back_populates='students')

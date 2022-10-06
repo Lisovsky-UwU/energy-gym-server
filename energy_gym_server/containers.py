@@ -38,7 +38,7 @@ class Services(containers.DeclarativeContainer):
 
 class Application(containers.DeclarativeContainer):
 
-    wiring_config = containers.WiringConfiguration(packages=['.blueprints', '.service'])
+    wiring_config = containers.WiringConfiguration(packages=['.blueprints', '.services'])
 
     config = providers.Singleton(
         Config
