@@ -52,7 +52,7 @@ async def add_student(
     service: StudentsService = Provide[Application.services.students]
 ):
     body = await request.get_json()
-    request_dto = dto.StudentAddRequest(**body)
+    request_dto = dto.RegistrationStudentRequest(**body)
 
     data = await service.add_student(request_dto)
     await service.commit()

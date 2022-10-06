@@ -7,8 +7,7 @@ class AvailableDayAccess:
     GET = 'available day get'
     DELETE = 'available day delete'
 
-    @property
-    def all_rights() -> List:
+    def get_all_rights() -> List:
         return [
             AvailableDayAccess.ADD,
             AvailableDayAccess.GET,
@@ -23,8 +22,7 @@ class StudentAccess:
     GET = 'student get'
     DELETE = 'student delete'
 
-    @property
-    def all_rights() -> List:
+    def get_all_rights() -> List:
         return [
             StudentAccess.EDITANY,
             StudentAccess.ADD,
@@ -40,8 +38,7 @@ class EntyAccess:
     GET = 'entry get'
     DELETE = 'entry delete'
 
-    @property
-    def all_rights() -> List:
+    def get_all_rights() -> List:
         return [
             EntyAccess.EDITANY,
             EntyAccess.ADD,
@@ -56,10 +53,9 @@ class AccesRights:
     STUDENT = StudentAccess
     ENTRY = EntyAccess
 
-    @property
-    def all_rights() -> List:
+    def get_all_rights() -> List:
         return [
-            *AccesRights.AVAILABLEDAY.all_rights,
-            *AccesRights.STUDENT.all_rights,
-            *AccesRights.ENTRY.all_rights
+            *AccesRights.AVAILABLEDAY.get_all_rights(),
+            *AccesRights.STUDENT.get_all_rights(),
+            *AccesRights.ENTRY.get_all_rights()
         ]

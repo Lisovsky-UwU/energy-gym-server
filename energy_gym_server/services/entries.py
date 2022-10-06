@@ -5,7 +5,7 @@ from sqlalchemy.future import select
 from quart import request as quart_request
 
 from .abc import AsyncBaseService
-from ..models import dto, database, AccesRights
+from ..models import dto, database, AccesRights, UserRoles
 from ..exceptions import AddDataCorrectException, GetDataCorrectException, AccessRightsException
 
 
@@ -153,7 +153,7 @@ class EntriesService(AsyncBaseService):
     async def __check_access_for_entry__(self, user_code: int, entry_code: int):
         db_user: database.Student = await self.session.get(database.Student, user_code)
 
-        if AccesRights.ENTRY.EDITANY not in db_user.acces_rights:
+        if AccesRights.ENTRY.EDITANY not in UserRoles[db_user.role].value:
             db_entry: database.Entry = await self.session.get(database.Entry, entry_code)
             if db_entry is None:
                 raise GetDataCorrectException('Запрашиваемая запись не найдена')
@@ -165,5 +165,5 @@ class EntriesService(AsyncBaseService):
     async def __check_access_for_student__(self, user_code: int, student_code: int):
         db_user: database.Student = await self.session.get(database.Student, user_code)
 
-        if AccesRights.ENTRY.EDITANY not in db_user.acces_rights and db_user.code != student_code:
+        if AccesRights.ENTRY.EDITANY not in UserRoles[db_user.role].value and db_user.code != student_code:
             raise AccessRightsException('Для выполнения данной операции у вас недостаточно прав')

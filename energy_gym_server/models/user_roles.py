@@ -12,5 +12,5 @@ class UserRoles(Enum):
     ]
 
     ADMIN = [
-        *AccesRights.all_rights
+        *AccesRights.get_all_rights()
     ]

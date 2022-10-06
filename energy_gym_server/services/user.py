@@ -4,7 +4,7 @@ from sqlalchemy.future import select
 from passlib.totp import generate_secret
 
 from .abc import AsyncBaseService
-from ..models import dto, database
+from ..models import dto, database, UserRoles
 from .. import exceptions
 
 
@@ -52,7 +52,7 @@ class UserService(AsyncBaseService):
                     if db_student is None:
                         raise exceptions.GetDataCorrectException('Пользователь не найден')
 
-                    if access not in db_student.acces_rights:
+                    if access not in UserRoles[db_student.role].value:
                         raise exceptions.AccessRightsException('Для выполнения данной операции у вас недостаточно прав')
                     
                     request.headers.add('student_code', db_student.code)

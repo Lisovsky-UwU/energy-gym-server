@@ -2,7 +2,7 @@ from sqlalchemy.future import select
 from sqlalchemy.sql import any_
 
 from .abc import AsyncBaseService
-from ..models import dto, database, AccesRights
+from ..models import dto, database, UserRoles
 from ..exceptions import AddDataCorrectException, GetDataCorrectException
 
 
@@ -59,11 +59,7 @@ class StudentsService(AsyncBaseService):
 
         student = database.Student(
             **request.dict(),
-            acces_rights = [
-                AccesRights.AVAILABLEDAY.GET,
-                AccesRights.ENTRY.ADD,
-                AccesRights.ENTRY.GET
-            ]
+            role=UserRoles.STUDENT.name
         )
         self.session.add(student)
         await self.session.flush()
