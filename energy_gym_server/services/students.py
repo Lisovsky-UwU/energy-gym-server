@@ -1,9 +1,10 @@
 from sqlalchemy.future import select
 from sqlalchemy.sql import any_
+from quart import request as quart_request
 
 from .abc import AsyncBaseService
-from ..models import dto, database, UserRoles
-from ..exceptions import AddDataCorrectException, GetDataCorrectException
+from ..models import dto, database, AccesRights, UserRoles
+from ..exceptions import AddDataCorrectException, GetDataCorrectException, AccessRightsException
 
 
 class StudentsService(AsyncBaseService):
@@ -24,6 +25,8 @@ class StudentsService(AsyncBaseService):
     
 
     async def get_by_code(self, request: dto.ItemByCodeRequest) -> dto.StudentModel:
+        await self.__check_access_for_student__(int(quart_request.headers.get('student_code')), request.code)
+
         student = await self.session.get(database.Student, request.code)
         if student is None:
             raise GetDataCorrectException('Студент с запрашиваемым кодом не найден')
@@ -72,9 +75,18 @@ class StudentsService(AsyncBaseService):
 
 
     async def delete_student(self, request: dto.ItemDeleteRequest) -> dto.ItemsDeleted:
-        await self.session.delete(
-            self.session.get(database.Student, request.code)
-        )
+        await self.__check_access_for_student__(int(quart_request.headers.get('student_code')), request.code)
+
+        db_student = await self.session.get(database.Student, request.code)
+
+        await self.session.delete(db_student)
         return dto.ItemsDeleted(
             result_text='Студент успешно удален'
         )
+
+
+    async def __check_access_for_student__(self, user_code: int, student_code: int):
+        db_user: database.Student = await self.session.get(database.Student, user_code)
+
+        if AccesRights.STUDENT.EDITANY not in UserRoles[db_user.role].value and db_user.code != student_code:
+            raise AccessRightsException('Для выполнения данной операции у вас недостаточно прав')

@@ -8,7 +8,7 @@ from energy_gym_server.containers import Application
 
 
 @api.get('/students/get-list')
-@UserService.check_acces(AccesRights.STUDENT.GET)
+@UserService.check_acces(AccesRights.STUDENT.EDITANY)
 @inject
 async def get_student_list(
     service: StudentsService = Provide[Application.services.students]
@@ -32,7 +32,7 @@ async def get_student_by_code(
 
 
 @api.get('/students/get-list-by-codes')
-@UserService.check_acces(AccesRights.STUDENT.GET)
+@UserService.check_acces(AccesRights.STUDENT.EDITANY)
 @inject
 async def get_student_list_by_codes(
     service: StudentsService = Provide[Application.services.students]
