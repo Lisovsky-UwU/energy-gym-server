@@ -1,3 +1,6 @@
+from typing import List
+
+
 class AvailableDayAccess:
     '''Права доступов для информации по дням для записи'''
     ADD = 'available day add'
@@ -5,7 +8,7 @@ class AvailableDayAccess:
     DELETE = 'available day delete'
 
     @property
-    def all_rights():
+    def all_rights() -> List:
         return [
             AvailableDayAccess.ADD,
             AvailableDayAccess.GET,
@@ -21,7 +24,7 @@ class StudentAccess:
     DELETE = 'student delete'
 
     @property
-    def all_rights():
+    def all_rights() -> List:
         return [
             StudentAccess.EDITANY,
             StudentAccess.ADD,
@@ -38,7 +41,7 @@ class EntyAccess:
     DELETE = 'entry delete'
 
     @property
-    def all_rights():
+    def all_rights() -> List:
         return [
             EntyAccess.EDITANY,
             EntyAccess.ADD,
@@ -54,7 +57,7 @@ class AccesRights:
     ENTRY = EntyAccess
 
     @property
-    def all_rights():
+    def all_rights() -> List:
         return [
             *AccesRights.AVAILABLEDAY.all_rights,
             *AccesRights.STUDENT.all_rights,

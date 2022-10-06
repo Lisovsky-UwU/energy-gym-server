@@ -3,12 +3,12 @@ from quart import request
 from sqlalchemy.future import select
 from passlib.totp import generate_secret
 
-from .abc import BaseService
+from .abc import AsyncBaseService
 from ..models import dto, database
 from .. import exceptions
 
 
-class UserService(BaseService):
+class UserService(AsyncBaseService):
 
     async def generate_token(self, request: dto.LoginRequest) -> dto.TokenModel:
         db_student = await self.session.scalar(

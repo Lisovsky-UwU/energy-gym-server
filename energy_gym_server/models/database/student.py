@@ -11,7 +11,8 @@ class Student(Base):
     name = Column(String(50), nullable=False)
     group = Column(String(20), nullable=False)
     password = Column(String(25), nullable=False)
-    acces_rights = Column(ARRAY(String), nullable=False)
+    role = Column(String(15), nullable=False)
+    # acces_rights = Column(ARRAY(String), nullable=False)
 
     entries = relationship('Entry', uselist=False, back_populates='students')
     token = relationship('Token', uselist=False, back_populates='students')
