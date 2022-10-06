@@ -1,3 +1,4 @@
+from typing import List
 from pydantic import BaseModel
 from datetime import date, datetime
 
@@ -23,3 +24,8 @@ class EntryModel(BaseModel):
     create_time: datetime
     selected_day: int
     student: int
+
+
+class TokenModel(BaseModel):
+    token: str
+    user: int

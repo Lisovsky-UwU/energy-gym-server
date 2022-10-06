@@ -2,7 +2,7 @@ from dependency_injector import containers, providers
 
 from .models.database import session_factory
 from .config_module import Config
-from .services import AvailableDaysService, StudentsService, EntriesService
+from .services import AvailableDaysService, StudentsService, EntriesService, UserService
 
 
 class Services(containers.DeclarativeContainer):
@@ -30,10 +30,15 @@ class Services(containers.DeclarativeContainer):
         session=session_factory
     )
 
+    user = providers.Factory(
+        UserService,
+        session=session_factory
+    )
+
 
 class Application(containers.DeclarativeContainer):
 
-    wiring_config = containers.WiringConfiguration(packages=['.blueprints'])
+    wiring_config = containers.WiringConfiguration(packages=['.blueprints', '.service'])
 
     config = providers.Singleton(
         Config

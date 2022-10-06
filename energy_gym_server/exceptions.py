@@ -33,6 +33,26 @@ class ApiException(EnergyGymException):
     pass
 
 
+class TokenMissingException(ApiException):
+    '''Исключение из-за отсутствия токена в заголовке запроса'''
+    pass
+
+
+class IncorrectTokenException(ApiException):
+    '''Исключение при неверном токене'''
+    pass
+
+
+class AccessRightsException(ApiException):
+    '''Исключение при отсутствии необходимых прав'''
+    pass
+
+
 class InvalidRequestException(ApiException):
     '''Исключение при неверном теле запроса'''
+    pass
+
+
+class LoginException(EnergyGymException):
+    '''Исключение при ошибке входа'''
     pass

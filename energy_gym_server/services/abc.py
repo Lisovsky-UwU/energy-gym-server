@@ -5,12 +5,16 @@ from sqlalchemy.sql import select, any_
 
 from ..exceptions import DataBaseConnectionException
 from ..models import dto
+from ..models.database import session_factory
 
 
 class AsyncDataBaseService:
     
-    def __init__(self, session: Session):
-        self.session = session
+    def __init__(self, session: Session = None, **kwargs):
+        if session is None:
+            self.session = session_factory(**kwargs)
+        else:
+            self.session = session
 
     def __getattr__(self, attr):
         return getattr(self.session, attr)
