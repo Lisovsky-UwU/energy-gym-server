@@ -2,7 +2,7 @@ from sqlalchemy.future import select
 from sqlalchemy.sql import any_
 
 from .abc import BaseService
-from ..models import dto, database
+from ..models import dto, database, AccesRights
 from ..exceptions import AddDataCorrectException, GetDataCorrectException
 
 
@@ -53,11 +53,18 @@ class StudentsService(BaseService):
         )
 
 
-    async def add_student(self, request: dto.StudentAddRequest) -> dto.StudentModel:
+    async def add_student(self, request: dto.RegistrationStudentRequest) -> dto.StudentModel:
         if await self.session.get(database.Student, request.code) is not None:
             raise AddDataCorrectException('Студент с данным идентефикатором уже существует')
 
-        student = database.Student(**request.dict())
+        student = database.Student(
+            **request.dict(),
+            acces_rights = [
+                AccesRights.AVAILABLEDAY.GET,
+                AccesRights.ENTRY.ADD,
+                AccesRights.ENTRY.GET
+            ]
+        )
         self.session.add(student)
         await self.session.flush()
 

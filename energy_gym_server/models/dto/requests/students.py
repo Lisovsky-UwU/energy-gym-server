@@ -1,5 +1,5 @@
 from .. import StudentModel
 
 
-class StudentAddRequest(StudentModel):
-    pass
+class RegistrationStudentRequest(StudentModel):
+    password: str

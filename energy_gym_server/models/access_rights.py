@@ -1,21 +1,18 @@
-from enum import Enum
-
-
-class AvailableDayAccess(Enum):
+class AvailableDayAccess:
     '''Права доступов для информации по дням для записи'''
     ADD = 'available day add'
     GET = 'available day get'
     DELETE = 'available day delete'
 
 
-class StudentAccess(Enum):
+class StudentAccess:
     '''Права доступов для информации по студентам'''
     ADD = 'student add'
     GET = 'student get'
     DELETE = 'student delete'
 
 
-class EntyAccess(Enum):
+class EntyAccess:
     '''Права доступов для информации по записям'''
     ADD = 'entry add'
     GET = 'entry get'
