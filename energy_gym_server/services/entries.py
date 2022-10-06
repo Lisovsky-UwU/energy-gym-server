@@ -1,4 +1,3 @@
-import asyncio
 from datetime import datetime
 from typing import List
 from sqlalchemy.sql import func, any_
@@ -103,7 +102,7 @@ class EntriesService(AsyncBaseService):
 
     async def delete_entry(self, request: dto.ItemDeleteRequest) -> dto.ItemsDeleted:
         await self.__check_access_for_entry__(int(quart_request.headers.get('student_code')), request.code)
-        
+
         await self.session.delete(
             self.session.get(database.Entry, request.code)
         )
