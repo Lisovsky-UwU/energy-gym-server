@@ -2,12 +2,13 @@ from quart import request, jsonify
 from dependency_injector.wiring import Provide, inject
 
 from .. import api
-from energy_gym_server.services import EntriesService
-from energy_gym_server.models import dto
+from energy_gym_server.services import EntriesService, UserService
+from energy_gym_server.models import dto, AccesRights
 from energy_gym_server.containers import Application
 
 
 @api.get('/entries/get-list')
+@UserService.check_acces(AccesRights.ENTRY.EDITANY)
 @inject
 async def get_entry_list(
     service: EntriesService = Provide[Application.services.entries]
@@ -17,6 +18,7 @@ async def get_entry_list(
 
 
 @api.get('/entries/get-in-day')
+@UserService.check_acces(AccesRights.ENTRY.EDITANY)
 @inject
 async def get_entry_list_in_day(
     service: EntriesService = Provide[Application.services.entries]
@@ -29,6 +31,7 @@ async def get_entry_list_in_day(
 
 
 @api.get('/entries/get-for-student')
+@UserService.check_acces(AccesRights.ENTRY.GET)
 @inject
 async def get_entry_list_for_student(
     service: EntriesService = Provide[Application.services.entries]
@@ -41,6 +44,7 @@ async def get_entry_list_for_student(
 
 
 @api.get('/entries/get-by-code')
+@UserService.check_acces(AccesRights.ENTRY.GET)
 @inject
 async def get_entry_for_code(
     service: EntriesService = Provide[Application.services.entries]
@@ -53,6 +57,7 @@ async def get_entry_for_code(
 
 
 @api.get('/entries/get-list-by-codes')
+@UserService.check_acces(AccesRights.ENTRY.GET)
 @inject
 async def get_entry_list_for_codes(
     service: EntriesService = Provide[Application.services.entries]
@@ -65,6 +70,7 @@ async def get_entry_list_for_codes(
 
 
 @api.post('/entries/add')
+@UserService.check_acces(AccesRights.ENTRY.ADD)
 @inject
 async def add_entry(
     service: EntriesService = Provide[Application.services.entries]
@@ -79,12 +85,13 @@ async def add_entry(
 
 
 @api.delete('/entries/delete')
+@UserService.check_acces(AccesRights.ENTRY.DELETE)
 @inject
 async def delete_entry(
     service: EntriesService = Provide[Application.services.entries]
 ):
     body = await request.get_json()
-    request_dto = dto.ItemsDeleteRequest(**body)
+    request_dto = dto.ItemDeleteRequest(**body)
 
     data = await service.delete_entry(request_dto)
     await service.commit()

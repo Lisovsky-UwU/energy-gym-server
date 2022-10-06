@@ -7,6 +7,7 @@ class AvailableDayAccess:
 
 class StudentAccess:
     '''Права доступов для информации по студентам'''
+    EDITANY = 'student edit any'
     ADD = 'student add'
     GET = 'student get'
     DELETE = 'student delete'
@@ -14,6 +15,7 @@ class StudentAccess:
 
 class EntyAccess:
     '''Права доступов для информации по записям'''
+    EDITANY = 'entry edit any'
     ADD = 'entry add'
     GET = 'entry get'
     DELETE = 'entry delete'

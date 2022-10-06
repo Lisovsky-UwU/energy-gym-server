@@ -1,14 +1,16 @@
+import asyncio
 from datetime import datetime
 from typing import List
 from sqlalchemy.sql import func, any_
 from sqlalchemy.future import select
+from quart import request as quart_request
 
-from .abc import BaseService
-from ..models import dto, database
-from ..exceptions import AddDataCorrectException, GetDataCorrectException
+from .abc import AsyncBaseService
+from ..models import dto, database, AccesRights
+from ..exceptions import AddDataCorrectException, GetDataCorrectException, AccessRightsException
 
 
-class EntriesService(BaseService):
+class EntriesService(AsyncBaseService):
     
     async def get_list_all_entry(self) -> dto.EntryList:
         return await self.__get_entry_list_for_filter__()
@@ -23,6 +25,7 @@ class EntriesService(BaseService):
 
     
     async def get_entries_for_student(self, request: dto.EntryListStudentRequest) -> dto.EntryList:
+        await self.__check_access_for_student__(int(quart_request.headers.get('student_code')), request.student_code)
         return await self.__get_entry_list_for_filter__(
             [
                 database.Entry.student == request.student_code
@@ -31,6 +34,7 @@ class EntriesService(BaseService):
 
 
     async def get_detailed_entry(self, request: dto.ItemByCodeRequest) -> dto.EntryDetailed:
+        await self.__check_access_for_entry__(int(quart_request.headers.get('student_code')), request.code)
         db_entry = await self.session.get(database.Entry, request.code)
         if db_entry is None:
             raise GetDataCorrectException('Запрашиваемая запись не найдена')
@@ -39,6 +43,10 @@ class EntriesService(BaseService):
 
     
     async def get_entry_list_by_codes(self, request: dto.ItemListByCodesRequest) -> dto.EntryList:
+        user_code = int(quart_request.headers.get('student_code'))
+        for entry_code in request.code_list:
+            await self.__check_access_for_entry__(user_code, entry_code)
+
         return await self.__get_entry_list_for_filter__(
             [
                 database.Entry.code == any_(request.code_list)
@@ -47,6 +55,8 @@ class EntriesService(BaseService):
 
 
     async def add_entry(self, request: dto.EntryAddRequest) -> dto.EntryModel:
+        await self.__check_access_for_student__(int(quart_request.headers.get('student_code')), request.student_code)
+
         db_selected_day = await self.session.get(database.AvailableDay, request.selected_day)
         if db_selected_day is None:
             raise AddDataCorrectException('На указанный день возможные записи отсутствуют')
@@ -91,8 +101,15 @@ class EntriesService(BaseService):
         )
 
 
-    async def delete_entry(self, request: dto.ItemsDeleteRequest) -> dto.ItemsDeleted:
-        return await self.__delete_items__(database.Entry, request)
+    async def delete_entry(self, request: dto.ItemDeleteRequest) -> dto.ItemsDeleted:
+        await self.__check_access_for_entry__(int(quart_request.headers.get('student_code')), request.code)
+        
+        await self.session.delete(
+            self.session.get(database.Entry, request.code)
+        )
+        return dto.ItemsDeleted(
+            result_text='Запись успешно удалена'
+        )
 
 
     async def __get_detailed_entry__(self, db_entry: database.Entry) -> dto.EntryDetailed:
@@ -132,3 +149,22 @@ class EntriesService(BaseService):
                 )
             ]
         )
+
+
+    async def __check_access_for_entry__(self, user_code: int, entry_code: int):
+        db_user: database.Student = await self.session.get(database.Student, user_code)
+
+        if AccesRights.ENTRY.EDITANY not in db_user.acces_rights:
+            db_entry: database.Entry = await self.session.get(database.Entry, entry_code)
+            if db_entry is None:
+                raise GetDataCorrectException('Запрашиваемая запись не найдена')
+
+            if db_entry.student != db_user.code:
+                raise AccessRightsException('Для выполнения данной операции у вас недостаточно прав')
+
+
+    async def __check_access_for_student__(self, user_code: int, student_code: int):
+        db_user: database.Student = await self.session.get(database.Student, user_code)
+
+        if AccesRights.ENTRY.EDITANY not in db_user.acces_rights and db_user.code != student_code:
+            raise AccessRightsException('Для выполнения данной операции у вас недостаточно прав')

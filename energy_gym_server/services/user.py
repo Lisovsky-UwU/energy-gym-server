@@ -5,7 +5,7 @@ from passlib.totp import generate_secret
 
 from .abc import BaseService
 from ..models import dto, database
-from ..exceptions import LoginException, TokenMissingException, IncorrectTokenException, AccessRightsException
+from ..exceptions import LoginException, TokenMissingException, IncorrectTokenException, AccessRightsException, GetDataCorrectException
 
 
 class UserService(BaseService):
@@ -49,11 +49,16 @@ class UserService(BaseService):
                         raise IncorrectTokenException('Неверный токен запроса')
 
                     db_student = await service.session.get(database.Student, db_token.user)
+                    if db_student is None:
+                        raise GetDataCorrectException('Пользователь не найден')
+
                     if access not in db_student.acces_rights:
                         raise AccessRightsException('Для выполнения данной операции у вас недостаточно прав')
+                    
+                    request.headers.add('student_code', db_student.code)
 
                 return await func(*args, **kwargs)
 
             return decorator
 
-        return _check_auth        
+        return _check_auth

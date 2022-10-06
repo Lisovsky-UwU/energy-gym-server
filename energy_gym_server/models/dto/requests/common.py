@@ -1,17 +1,9 @@
-from typing import List, Optional
-from pydantic import BaseModel, root_validator
+from typing import List
+from pydantic import BaseModel
 
 
-class ItemsDeleteRequest(BaseModel):
-    code: Optional[int]
-    code_list: Optional[List[int]]
-
-    @root_validator
-    def required_field(cls, fields):
-        if not (bool(fields.get("code")) ^ bool(fields.get("code_list"))):
-            raise ValueError('Необходим один из параметров code или code_list')
-
-        return fields
+class ItemDeleteRequest(BaseModel):
+    code: int
 
 
 class ItemByCodeRequest(BaseModel):

@@ -1,12 +1,12 @@
 from sqlalchemy.future import select
 from sqlalchemy.sql import any_
 
-from .abc import BaseService
+from .abc import AsyncBaseService
 from ..models import dto, database, AccesRights
 from ..exceptions import AddDataCorrectException, GetDataCorrectException
 
 
-class StudentsService(BaseService):
+class StudentsService(AsyncBaseService):
 
     async def get_student_list(self) -> dto.StudentList:
         return dto.StudentList(
@@ -75,5 +75,10 @@ class StudentsService(BaseService):
         )
 
 
-    async def delete_student(self, request: dto.ItemsDeleteRequest) -> dto.ItemsDeleted:
-        return await self.__delete_items__(database.Student, request)
+    async def delete_student(self, request: dto.ItemDeleteRequest) -> dto.ItemsDeleted:
+        await self.session.delete(
+            self.session.get(database.Student, request.code)
+        )
+        return dto.ItemsDeleted(
+            result_text='Студент успешно удален'
+        )

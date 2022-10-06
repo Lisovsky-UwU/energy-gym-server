@@ -2,12 +2,12 @@ from typing import List
 from sqlalchemy.future import select
 from sqlalchemy.sql import func, any_
 
-from .abc import BaseService
+from .abc import AsyncBaseService
 from ..models import dto, database
 from ..exceptions import AddDataCorrectException, GetDataCorrectException
 
 
-class AvailableDaysService(BaseService):
+class AvailableDaysService(AsyncBaseService):
 
     async def get_all_days(self) -> dto.AvailableDayList:
         return await self.__get_day_list_with_free_seats__(
@@ -62,8 +62,13 @@ class AvailableDaysService(BaseService):
         )
 
 
-    async def delete_day(self, request: dto.ItemsDeleteRequest) -> dto.ItemsDeleted:
-        return await self.__delete_items__(database.AvailableDay, request)
+    async def delete_day(self, request: dto.ItemDeleteRequest) -> dto.ItemsDeleted:
+        await self.session.delete(
+            self.session.get(database.AvailableDay, request.code)
+        )
+        return dto.ItemsDeleted(
+            result_text='День для записи успешно удален'
+        )
 
 
     async def __get_day_list_with_free_seats__(self, db_day_list: List[database.AvailableDay]) -> dto.AvailableDayList:

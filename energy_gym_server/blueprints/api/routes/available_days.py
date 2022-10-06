@@ -2,12 +2,13 @@ from quart import request, jsonify
 from dependency_injector.wiring import Provide, inject
 
 from .. import api
-from energy_gym_server.services import AvailableDaysService
-from energy_gym_server.models import dto
+from energy_gym_server.services import AvailableDaysService, UserService
+from energy_gym_server.models import dto, AccesRights
 from energy_gym_server.containers import Application
 
 
 @api.get('/available-days/get-list')
+@UserService.check_acces(AccesRights.AVAILABLEDAY.GET)
 @inject
 async def get_available_day_list(
     service: AvailableDaysService = Provide[Application.services.available_day]
@@ -75,7 +76,7 @@ async def delete_available_day(
     service: AvailableDaysService = Provide[Application.services.available_day]
 ):
     body = await request.get_json()
-    request_dto = dto.ItemsDeleteRequest(**body)
+    request_dto = dto.ItemDeleteRequest(**body)
 
     data = await service.delete_day(request_dto)
     await service.commit()
