@@ -52,7 +52,7 @@ class UserService(BaseService):
                     if access not in db_student.acces_rights:
                         raise AccessRightsException('Для выполнения данной операции у вас недостаточно прав')
 
-                return func(*args, **kwargs)
+                return await func(*args, **kwargs)
 
             return decorator
 
