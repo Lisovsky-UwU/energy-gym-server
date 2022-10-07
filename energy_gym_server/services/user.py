@@ -8,7 +8,7 @@ from ..models import dto, database, UserRoles
 from .. import exceptions
 
 
-class UserService(AsyncBaseService):
+class AuthorizationService(AsyncBaseService):
 
     async def generate_token(self, request: dto.LoginRequest) -> dto.TokenModel:
         db_student = await self.session.scalar(
@@ -43,7 +43,7 @@ class UserService(AsyncBaseService):
                 if request_token is None:
                     raise exceptions.TokenMissingException('Отсутствует заголовок Authorization')
 
-                async with UserService() as service:
+                async with AuthorizationService() as service:
                     db_token = await service.session.get(database.Token, request_token)
                     if db_token is None:
                         raise exceptions.IncorrectTokenException('Неверный токен запроса')
