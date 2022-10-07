@@ -17,10 +17,10 @@ class AvailableDayAccess:
 
 class UserAccess:
     '''Права доступов для информации по пользователям'''
-    EDITANY = 'student edit any'
-    ADD = 'student add'
-    GET = 'student get'
-    DELETE = 'student delete'
+    EDITANY = 'user edit any'
+    ADD = 'user add'
+    GET = 'user get'
+    DELETE = 'user delete'
 
     def get_all_rights() -> List:
         return [
