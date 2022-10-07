@@ -35,15 +35,6 @@ class AvailableDaysService(AsyncBaseService):
         return await self.__get_day_with_free_seats__(available_day)
 
 
-    async def get_day_list_by_codes(self, request: dto.ItemListByCodesRequest) -> dto.AvailableDayList:
-        return await self.__get_day_list_with_free_seats__(
-            await self.session.scalars(
-                select(database.AvailableDay)
-                .where(database.AvailableDay.code == any_(request.code_list))
-            )
-        )
-
-
     async def add_day(self, request: dto.AvailableDayAddRequest) -> dto.AvailableDayBase:
         if await self.session.scalar(
             select(database.AvailableDay)

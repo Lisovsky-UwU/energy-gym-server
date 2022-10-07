@@ -45,20 +45,6 @@ async def get_abailable_day_by_code(
     return jsonify(data.dict())
 
 
-@api.get('available-days/get-list-by-codes')
-@AuthorizationService.check_acces(AccesRights.AVAILABLEDAY.GET)
-@inject
-async def get_available_day_list_by_codes(
-    service: AvailableDaysService = Provide[Application.services.available_day]
-):
-    body = await request.get_json()
-    request_dto = dto.ItemListByCodesRequest(**body)
-
-    data = await service.get_day_list_by_codes(request_dto)
-
-    return jsonify(data.dict())
-
-
 @api.post('/available-days/add')
 @AuthorizationService.check_acces(AccesRights.AVAILABLEDAY.ADD)
 @inject

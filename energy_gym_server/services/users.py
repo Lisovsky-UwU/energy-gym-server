@@ -38,24 +38,6 @@ class UsersService(AsyncBaseService):
         )
 
 
-    async def get_list_by_codes(self, request: dto.ItemListByCodesRequest) -> dto.UserList:
-        return dto.UserList(
-            user_list=[
-                dto.UserModel(
-                    code=db_user.code,
-                    name=db_user.name,
-                    group=db_user.group
-                )
-                for db_user in (
-                    await self.session.scalars(
-                        select(database.User)
-                        .where(database.User.code == any_(request.code_list))
-                    )
-                )
-            ]
-        )
-
-
     async def add_user(self, request: dto.RegistrationUserRequest) -> dto.UserModel:
         if await self.session.get(database.User, request.code) is not None:
             raise AddDataCorrectException('Пользователь с данным идентефикатором уже существует')

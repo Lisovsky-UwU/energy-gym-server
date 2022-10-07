@@ -40,18 +40,6 @@ class EntriesService(AsyncBaseService):
         
         return await self.__get_detailed_entry__(db_entry)
 
-    
-    async def get_entry_list_by_codes(self, request: dto.ItemListByCodesRequest) -> dto.EntryList:
-        user_code = int(quart_request.headers.get('user_code'))
-        for entry_code in request.code_list:
-            await self.__check_access_for_entry__(user_code, entry_code)
-
-        return await self.__get_entry_list_for_filter__(
-            [
-                database.Entry.code == any_(request.code_list)
-            ]
-        )
-
 
     async def add_entry(self, request: dto.EntryAddRequest) -> dto.EntryModel:
         await self.__check_access_for_user__(int(quart_request.headers.get('user_code')), request.user_code)

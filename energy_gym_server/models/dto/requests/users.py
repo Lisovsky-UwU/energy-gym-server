@@ -1,5 +1,1 @@
-from .. import UserModel
-
-
-class RegistrationUserRequest(UserModel):
-    password: str
+# Возможно что-то здесь появится

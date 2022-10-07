@@ -31,20 +31,6 @@ async def get_student_by_code(
     return jsonify(data.dict())
 
 
-@api.get('/users/get-list-by-codes')
-@AuthorizationService.check_acces(AccesRights.USER.EDITANY)
-@inject
-async def get_student_list_by_codes(
-    service: UsersService = Provide[Application.services.students]
-):
-    body = await request.get_json()
-    request_dto = dto.ItemListByCodesRequest(**body)
-
-    data = await service.get_list_by_codes(request_dto)
-
-    return jsonify(data.dict())
-
-
 @api.post('/users/add')
 @AuthorizationService.check_acces(AccesRights.USER.ADD)
 @inject

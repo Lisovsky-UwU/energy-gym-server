@@ -11,7 +11,3 @@ class AvailableDayAddRequest(BaseModel):
 class AvailableDayListInPeriodRequest(BaseModel):
     date_begin: date
     date_end: date
-
-
-class AvailableDayByDateRequest(BaseModel):
-    date: date

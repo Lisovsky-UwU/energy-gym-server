@@ -8,7 +8,3 @@ class ItemDeleteRequest(BaseModel):
 
 class ItemByCodeRequest(BaseModel):
     code: int
-
-
-class ItemListByCodesRequest(BaseModel):
-    code_list: List[int]
