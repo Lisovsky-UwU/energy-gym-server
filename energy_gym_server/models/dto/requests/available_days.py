@@ -5,7 +5,7 @@ from datetime import date
 
 class AvailableDayAddRequest(BaseModel):
     day: date
-    number_of_students: int
+    number_of_person: int
 
 
 class AvailableDayListInPeriodRequest(BaseModel):

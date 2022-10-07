@@ -2,26 +2,26 @@ from quart import request, jsonify
 from dependency_injector.wiring import Provide, inject
 
 from .. import api
-from energy_gym_server.services import StudentsService, AuthorizationService
+from energy_gym_server.services import UsersService, AuthorizationService
 from energy_gym_server.models import dto, AccesRights
 from energy_gym_server.containers import Application
 
 
-@api.get('/students/get-list')
+@api.get('/users/get-list')
 @AuthorizationService.check_acces(AccesRights.STUDENT.EDITANY)
 @inject
 async def get_student_list(
-    service: StudentsService = Provide[Application.services.students]
+    service: UsersService = Provide[Application.services.students]
 ):
-    data = await service.get_student_list()
+    data = await service.get_user_list()
     return jsonify(data.dict())
 
 
-@api.get('/students/get-by-code')
+@api.get('/users/get-by-code')
 @AuthorizationService.check_acces(AccesRights.STUDENT.GET)
 @inject
 async def get_student_by_code(
-    service: StudentsService = Provide[Application.services.students]
+    service: UsersService = Provide[Application.services.students]
 ):
     body = await request.get_json()
     request_dto = dto.ItemByCodeRequest(**body)
@@ -31,11 +31,11 @@ async def get_student_by_code(
     return jsonify(data.dict())
 
 
-@api.get('/students/get-list-by-codes')
+@api.get('/users/get-list-by-codes')
 @AuthorizationService.check_acces(AccesRights.STUDENT.EDITANY)
 @inject
 async def get_student_list_by_codes(
-    service: StudentsService = Provide[Application.services.students]
+    service: UsersService = Provide[Application.services.students]
 ):
     body = await request.get_json()
     request_dto = dto.ItemListByCodesRequest(**body)
@@ -45,31 +45,31 @@ async def get_student_list_by_codes(
     return jsonify(data.dict())
 
 
-@api.post('/students/add')
+@api.post('/users/add')
 @AuthorizationService.check_acces(AccesRights.STUDENT.ADD)
 @inject
 async def add_student(
-    service: StudentsService = Provide[Application.services.students]
+    service: UsersService = Provide[Application.services.students]
 ):
     body = await request.get_json()
-    request_dto = dto.RegistrationStudentRequest(**body)
+    request_dto = dto.RegistrationUserRequest(**body)
 
-    data = await service.add_student(request_dto)
+    data = await service.add_user(request_dto)
     await service.commit()
 
     return jsonify(data.dict())
 
 
-@api.delete('/students/delete')
+@api.delete('/users/delete')
 @AuthorizationService.check_acces(AccesRights.STUDENT.DELETE)
 @inject
 async def delete_student(
-    service: StudentsService = Provide[Application.services.students]
+    service: UsersService = Provide[Application.services.students]
 ):
     body = await request.get_json()
     request_dto = dto.ItemDeleteRequest(**body)
 
-    data = await service.delete_student(request_dto)
+    data = await service.delete_user(request_dto)
     await service.commit()
 
     return jsonify(data.dict())

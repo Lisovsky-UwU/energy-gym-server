@@ -11,17 +11,17 @@ from .. import exceptions
 class AuthorizationService(AsyncBaseService):
 
     async def generate_token(self, request: dto.LoginRequest) -> dto.TokenModel:
-        db_student = await self.session.scalar(
-            select(database.Student)
-            .where(database.Student.name == request.username)
-            .where(database.Student.password == request.password)
+        db_user = await self.session.scalar(
+            select(database.User)
+            .where(database.User.name == request.username)
+            .where(database.User.password == request.password)
         )
-        if db_student is None:
+        if db_user is None:
             raise exceptions.LoginException('Неверный логин или пароль')
         
         db_token = database.Token(
             token=generate_secret(),
-            user=db_student.code
+            user=db_user.code
         )
 
         self.session.add(db_token)
@@ -48,14 +48,14 @@ class AuthorizationService(AsyncBaseService):
                     if db_token is None:
                         raise exceptions.IncorrectTokenException('Неверный токен запроса')
 
-                    db_student = await service.session.get(database.Student, db_token.user)
-                    if db_student is None:
+                    db_user = await service.session.get(database.User, db_token.user)
+                    if db_user is None:
                         raise exceptions.GetDataCorrectException('Пользователь не найден')
 
-                    if access not in UserRoles[db_student.role].value:
+                    if access not in UserRoles[db_user.role].value:
                         raise exceptions.AccessRightsException('Для выполнения данной операции у вас недостаточно прав')
                     
-                    request.headers.add('student_code', db_student.code)
+                    request.headers.add('user_code', db_user.code)
 
                 return await func(*args, **kwargs)
 

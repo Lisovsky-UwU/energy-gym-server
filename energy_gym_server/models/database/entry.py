@@ -10,7 +10,7 @@ class Entry(Base):
     code = Column(Integer, primary_key=True, autoincrement=True)
     create_time = Column(DateTime, nullable=False)
     selected_day = Column(Integer, ForeignKey('available_days.code'), nullable=False, index=True)
-    student = Column(Integer, ForeignKey('students.code'), nullable=False, index=True)
+    user = Column(Integer, ForeignKey('users.code'), nullable=False, index=True)
 
     available_days = relationship('AvailableDay', back_populates='entries')
-    students = relationship('Student', back_populates='entries')
+    users = relationship('User', back_populates='entries')

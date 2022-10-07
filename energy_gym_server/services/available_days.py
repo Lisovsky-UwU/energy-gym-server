@@ -58,7 +58,7 @@ class AvailableDaysService(AsyncBaseService):
         return dto.AvailableDayBase(
             code=available_day.code,
             day=available_day.day,
-            number_of_students=available_day.number_of_students
+            number_of_persons=available_day.number_of_persons
         )
 
 
@@ -103,7 +103,7 @@ class AvailableDaysService(AsyncBaseService):
         return dto.AvailableDayDetailed(
             code=db_day.code,
             day=db_day.day,
-            number_of_students=db_day.number_of_students,
-            free_seats=db_day.number_of_students - entries_day.count
+            number_of_persons=db_day.number_of_persons,
+            free_seats=db_day.number_of_persons - entries_day.count
         )
         

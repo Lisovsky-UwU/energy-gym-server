@@ -4,8 +4,8 @@ from sqlalchemy.orm import relationship
 from . import Base
 
 
-class Student(Base):
-    __tablename__ = 'students'
+class User(Base):
+    __tablename__ = 'users'
 
     code = Column(Integer, primary_key=True)
     name = Column(String(50), nullable=False)
@@ -14,5 +14,5 @@ class Student(Base):
     role = Column(String(15), nullable=False)
     # acces_rights = Column(ARRAY(String), nullable=False)
 
-    entries = relationship('Entry', uselist=False, back_populates='students')
-    token = relationship('Token', uselist=False, back_populates='students')
+    entries = relationship('Entry', uselist=False, back_populates='users')
+    token = relationship('Token', uselist=False, back_populates='users')

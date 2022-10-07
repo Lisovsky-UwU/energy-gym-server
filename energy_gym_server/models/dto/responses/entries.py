@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import List
 from pydantic import BaseModel
 
-from .. import EntryModel, AvailableDayBase, StudentModel
+from .. import EntryModel, AvailableDayBase, UserModel
 
 
 class EntryList(BaseModel):
@@ -13,4 +13,4 @@ class EntryDetailed(BaseModel):
     code: int
     create_time: datetime
     selected_day: AvailableDayBase
-    student: StudentModel
+    user: UserModel

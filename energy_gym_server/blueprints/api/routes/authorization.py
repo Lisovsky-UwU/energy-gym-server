@@ -2,30 +2,30 @@ from quart import request, jsonify
 from dependency_injector.wiring import Provide, inject
 
 from .. import api
-from energy_gym_server.services import AuthorizationService, StudentsService
+from energy_gym_server.services import AuthorizationService, UsersService
 from energy_gym_server.models import dto
 from energy_gym_server.containers import Application
 
 
-@api.post('/authorization/registration-student')
+@api.post('/authorization/registration-user')
 @inject
 async def registration_new_student(
-    student_service: StudentsService = Provide[Application.services.students],
-    user_service: AuthorizationService = Provide[Application.services.authorization]
+    user_service: UsersService = Provide[Application.services.students],
+    auth_service: AuthorizationService = Provide[Application.services.authorization]
 ):
     body = await request.get_json()
-    request_dto = dto.RegistrationStudentRequest(**body)
+    request_dto = dto.RegistrationUserRequest(**body)
 
-    await student_service.add_student(request_dto)
-    await student_service.commit()
+    await user_service.add_user(request_dto)
+    await user_service.commit()
 
-    login_data = await user_service.generate_token(
+    login_data = await auth_service.generate_token(
         dto.LoginRequest(
             username=request_dto.name,
             password=request_dto.password
         )
     )
-    await user_service.commit()
+    await auth_service.commit()
 
     return jsonify(login_data.dict())
 

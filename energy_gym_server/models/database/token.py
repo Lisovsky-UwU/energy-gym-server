@@ -8,6 +8,6 @@ class Token(Base):
     __tablename__ = "tokens"
 
     token = Column(String, primary_key=True)
-    user = Column(Integer, ForeignKey('students.code'), nullable=False, index=True)
+    user = Column(Integer, ForeignKey('users.code'), nullable=False, index=True)
 
-    students = relationship('Student', back_populates='token')
+    users = relationship('User', back_populates='token')

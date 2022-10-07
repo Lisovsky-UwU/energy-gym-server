@@ -10,6 +10,6 @@ class AvailableDay(Base):
 
     code = Column(Integer, primary_key=True, autoincrement=True)
     day = Column(Date, nullable=False)
-    number_of_students = Column(Integer, nullable=False)
+    number_of_persons = Column(Integer, nullable=False)
 
     entries = relationship('Entry', uselist=False, back_populates='available_days')

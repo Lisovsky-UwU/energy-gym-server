@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from datetime import date, datetime
 
 
-class StudentModel(BaseModel):
+class UserModel(BaseModel):
     code: int
     name: str
     group: str
@@ -12,7 +12,7 @@ class StudentModel(BaseModel):
 class AvailableDayBase(BaseModel):
     code: int
     day: date
-    number_of_students: int
+    number_of_person: int
 
 
 class AvailableDayDetailed(AvailableDayBase):
@@ -23,7 +23,7 @@ class EntryModel(BaseModel):
     code: int
     create_time: datetime
     selected_day: int
-    student: int
+    user: int
 
 
 class TokenModel(BaseModel):

@@ -1,4 +1,4 @@
 from .available_days import *
 from .entries import *
-from .students import *
+from .users import *
 from .common import *

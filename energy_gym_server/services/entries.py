@@ -23,17 +23,17 @@ class EntriesService(AsyncBaseService):
         )
 
     
-    async def get_entries_for_student(self, request: dto.EntryListStudentRequest) -> dto.EntryList:
-        await self.__check_access_for_student__(int(quart_request.headers.get('student_code')), request.student_code)
+    async def get_entries_for_user(self, request: dto.EntryListUserRequest) -> dto.EntryList:
+        await self.__check_access_for_user__(int(quart_request.headers.get('user_code')), request.user_code)
         return await self.__get_entry_list_for_filter__(
             [
-                database.Entry.student == request.student_code
+                database.Entry.user == request.user_code
             ]
         )
 
 
     async def get_detailed_entry(self, request: dto.ItemByCodeRequest) -> dto.EntryDetailed:
-        await self.__check_access_for_entry__(int(quart_request.headers.get('student_code')), request.code)
+        await self.__check_access_for_entry__(int(quart_request.headers.get('user_code')), request.code)
         db_entry = await self.session.get(database.Entry, request.code)
         if db_entry is None:
             raise GetDataCorrectException('Запрашиваемая запись не найдена')
@@ -42,7 +42,7 @@ class EntriesService(AsyncBaseService):
 
     
     async def get_entry_list_by_codes(self, request: dto.ItemListByCodesRequest) -> dto.EntryList:
-        user_code = int(quart_request.headers.get('student_code'))
+        user_code = int(quart_request.headers.get('user_code'))
         for entry_code in request.code_list:
             await self.__check_access_for_entry__(user_code, entry_code)
 
@@ -54,17 +54,17 @@ class EntriesService(AsyncBaseService):
 
 
     async def add_entry(self, request: dto.EntryAddRequest) -> dto.EntryModel:
-        await self.__check_access_for_student__(int(quart_request.headers.get('student_code')), request.student_code)
+        await self.__check_access_for_user__(int(quart_request.headers.get('user_code')), request.user_code)
 
         db_selected_day = await self.session.get(database.AvailableDay, request.selected_day)
         if db_selected_day is None:
             raise AddDataCorrectException('На указанный день возможные записи отсутствуют')
-        if await self.session.get(database.Student, request.student_code) is None:
+        if await self.session.get(database.User, request.user_code) is None:
             raise GetDataCorrectException('Указанный студент не найден')
 
         if await self.session.scalar(
             select(database.Entry)
-            .where(database.Entry.student == request.student_code)
+            .where(database.Entry.user == request.user_code)
             .where(database.Entry.selected_day == request.selected_day)
         ) is not None:
             raise AddDataCorrectException('Такая запись уже существует')
@@ -80,13 +80,13 @@ class EntriesService(AsyncBaseService):
             )
         ).one()
 
-        if db_selected_day.number_of_students - entries_day.count <= 0:
+        if db_selected_day.number_of_person - entries_day.count <= 0:
             raise AddDataCorrectException('На данный день отсутствуют свободные места')
 
         entry = database.Entry(
             create_time=datetime.now(),
             selected_day=request.selected_day,
-            student=request.student_code
+            user=request.user_code
         )
         self.session.add(entry)
         
@@ -96,12 +96,12 @@ class EntriesService(AsyncBaseService):
             code=entry.code,
             create_time=entry.create_time,
             selected_day=entry.selected_day,
-            student=entry.student
+            user=entry.user
         )
 
 
     async def delete_entry(self, request: dto.ItemDeleteRequest) -> dto.ItemsDeleted:
-        await self.__check_access_for_entry__(int(quart_request.headers.get('student_code')), request.code)
+        await self.__check_access_for_entry__(int(quart_request.headers.get('user_code')), request.code)
 
         await self.session.delete(
             await self.session.get(database.Entry, request.code)
@@ -113,7 +113,7 @@ class EntriesService(AsyncBaseService):
 
     async def __get_detailed_entry__(self, db_entry: database.Entry) -> dto.EntryDetailed:
         db_selected_day = await self.session.get(database.AvailableDay, db_entry.selected_day)
-        db_student = await self.session.get(database.Student, db_entry.student)
+        db_user = await self.session.get(database.User, db_entry.user)
 
         return dto.EntryDetailed(
             code=db_entry.code,
@@ -121,12 +121,12 @@ class EntriesService(AsyncBaseService):
             selected_day=dto.AvailableDayBase(
                 code=db_selected_day.code,
                 day=db_selected_day.day,
-                number_of_students=db_selected_day.number_of_students
+                number_of_persons=db_selected_day.number_of_persons
             ),
-            student=dto.StudentModel(
-                code=db_student.code,
-                name=db_student.name,
-                group=db_student.group
+            user=dto.UserModel(
+                code=db_user.code,
+                name=db_user.name,
+                group=db_user.group
             )
         )
 
@@ -138,7 +138,7 @@ class EntriesService(AsyncBaseService):
                     code=db_entry.code,
                     create_time=db_entry.create_time,
                     selected_day=db_entry.selected_day,
-                    student=db_entry.student
+                    user=db_entry.user
                 )
                 for db_entry in (
                     await self.session.scalars(
@@ -151,19 +151,19 @@ class EntriesService(AsyncBaseService):
 
 
     async def __check_access_for_entry__(self, user_code: int, entry_code: int):
-        db_user: database.Student = await self.session.get(database.Student, user_code)
+        db_user: database.User = await self.session.get(database.User, user_code)
 
         if AccesRights.ENTRY.EDITANY not in UserRoles[db_user.role].value:
             db_entry: database.Entry = await self.session.get(database.Entry, entry_code)
             if db_entry is None:
                 raise GetDataCorrectException('Запрашиваемая запись не найдена')
 
-            if db_entry.student != db_user.code:
+            if db_entry.user != db_user.code:
                 raise AccessRightsException('Для выполнения данной операции у вас недостаточно прав')
 
 
-    async def __check_access_for_student__(self, user_code: int, student_code: int):
-        db_user: database.Student = await self.session.get(database.Student, user_code)
+    async def __check_access_for_user__(self, user_code: int, access_user_code: int):
+        db_user: database.User = await self.session.get(database.User, user_code)
 
-        if AccesRights.ENTRY.EDITANY not in UserRoles[db_user.role].value and db_user.code != student_code:
+        if AccesRights.ENTRY.EDITANY not in UserRoles[db_user.role].value and db_user.code != access_user_code:
             raise AccessRightsException('Для выполнения данной операции у вас недостаточно прав')

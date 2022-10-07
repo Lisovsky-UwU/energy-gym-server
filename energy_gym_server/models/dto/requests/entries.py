@@ -3,12 +3,12 @@ from pydantic import BaseModel
 
 class EntryAddRequest(BaseModel):
     selected_day: int
-    student_code: int
+    user_code: int
 
 
 class EntryListInDayRequest(BaseModel):
     available_day: int
 
 
-class EntryListStudentRequest(BaseModel):
-    student_code: int
+class EntryListUserRequest(BaseModel):
+    user_code: int

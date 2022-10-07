@@ -1,5 +1,5 @@
 from .available_days import *
 from .entries import *
-from .students import *
-from .user import *
+from .users import *
+from .authorization import *
 from .common import *

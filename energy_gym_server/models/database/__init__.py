@@ -26,5 +26,5 @@ def session_factory(**kwargs):
 
 from .available_day import AvailableDay
 from .entry import Entry
-from .student import Student
+from .user import User
 from .token import Token
