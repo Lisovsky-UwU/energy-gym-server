@@ -80,7 +80,7 @@ class EntriesService(AsyncBaseService):
             )
         ).one()
 
-        if db_selected_day.number_of_person - entries_day.count <= 0:
+        if db_selected_day.number_of_persons - entries_day.count <= 0:
             raise AddDataCorrectException('На данный день отсутствуют свободные места')
 
         entry = database.Entry(

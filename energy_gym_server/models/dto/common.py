@@ -12,7 +12,7 @@ class UserModel(BaseModel):
 class AvailableDayBase(BaseModel):
     code: int
     day: date
-    number_of_person: int
+    number_of_persons: int
 
 
 class AvailableDayDetailed(AvailableDayBase):

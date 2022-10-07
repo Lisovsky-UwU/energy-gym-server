@@ -9,6 +9,7 @@ class UserRoles(Enum):
         AccesRights.AVAILABLEDAY.GET,
         AccesRights.ENTRY.ADD,
         AccesRights.ENTRY.GET,
+        AccesRights.ENTRY.DELETE,
         AccesRights.USER.GET,
         AccesRights.USER.DELETE
     ]
