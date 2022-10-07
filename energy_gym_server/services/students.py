@@ -77,9 +77,26 @@ class StudentsService(AsyncBaseService):
     async def delete_student(self, request: dto.ItemDeleteRequest) -> dto.ItemsDeleted:
         await self.__check_access_for_student__(int(quart_request.headers.get('student_code')), request.code)
 
-        db_student = await self.session.get(database.Student, request.code)
+        for db_entry in (
+            await self.session.scalars(
+                select(database.Entry)
+                .where(database.Entry.student == request.code)
+            )
+        ):
+            await self.session.delete(db_entry)
 
-        await self.session.delete(db_student)
+        for db_token in (
+            await self.session.scalars(
+                select(database.Token)
+                .where(database.Token.user == request.code)
+            )
+        ):
+            await self.session.delete(db_token)
+
+        await self.session.delete(
+            await self.session.get(database.Student, request.code)
+        )
+
         return dto.ItemsDeleted(
             result_text='Студент успешно удален'
         )

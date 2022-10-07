@@ -63,8 +63,16 @@ class AvailableDaysService(AsyncBaseService):
 
 
     async def delete_day(self, request: dto.ItemDeleteRequest) -> dto.ItemsDeleted:
+        for db_entry in (
+            await self.session.scalars(
+                select(database.Entry)
+                .where(database.Entry.selected_day == request.code)
+            )
+        ):
+            await self.session.delete(db_entry)
+        
         await self.session.delete(
-            self.session.get(database.AvailableDay, request.code)
+            await self.session.get(database.AvailableDay, request.code)
         )
         return dto.ItemsDeleted(
             result_text='День для записи успешно удален'

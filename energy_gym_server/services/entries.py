@@ -104,7 +104,7 @@ class EntriesService(AsyncBaseService):
         await self.__check_access_for_entry__(int(quart_request.headers.get('student_code')), request.code)
 
         await self.session.delete(
-            self.session.get(database.Entry, request.code)
+            await self.session.get(database.Entry, request.code)
         )
         return dto.ItemsDeleted(
             result_text='Запись успешно удалена'
