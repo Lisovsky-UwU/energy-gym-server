@@ -15,8 +15,8 @@ class AvailableDayAccess:
         ]
 
 
-class StudentAccess:
-    '''Права доступов для информации по студентам'''
+class UserAccess:
+    '''Права доступов для информации по пользователям'''
     EDITANY = 'student edit any'
     ADD = 'student add'
     GET = 'student get'
@@ -24,10 +24,10 @@ class StudentAccess:
 
     def get_all_rights() -> List:
         return [
-            StudentAccess.EDITANY,
-            StudentAccess.ADD,
-            StudentAccess.GET,
-            StudentAccess.DELETE
+            UserAccess.EDITANY,
+            UserAccess.ADD,
+            UserAccess.GET,
+            UserAccess.DELETE
         ]
 
 
@@ -50,12 +50,12 @@ class EntyAccess:
 class AccesRights:
     '''Права доступов для редактирования и получения данных'''
     AVAILABLEDAY = AvailableDayAccess
-    STUDENT = StudentAccess
+    USER = UserAccess
     ENTRY = EntyAccess
 
     def get_all_rights() -> List:
         return [
             *AccesRights.AVAILABLEDAY.get_all_rights(),
-            *AccesRights.STUDENT.get_all_rights(),
+            *AccesRights.USER.get_all_rights(),
             *AccesRights.ENTRY.get_all_rights()
         ]

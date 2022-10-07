@@ -9,8 +9,8 @@ class UserRoles(Enum):
         AccesRights.AVAILABLEDAY.GET,
         AccesRights.ENTRY.ADD,
         AccesRights.ENTRY.GET,
-        AccesRights.STUDENT.GET,
-        AccesRights.STUDENT.DELETE
+        AccesRights.USER.GET,
+        AccesRights.USER.DELETE
     ]
 
     ADMIN = [

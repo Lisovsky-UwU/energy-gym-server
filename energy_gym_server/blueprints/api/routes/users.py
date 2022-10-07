@@ -8,7 +8,7 @@ from energy_gym_server.containers import Application
 
 
 @api.get('/users/get-list')
-@AuthorizationService.check_acces(AccesRights.STUDENT.EDITANY)
+@AuthorizationService.check_acces(AccesRights.USER.EDITANY)
 @inject
 async def get_student_list(
     service: UsersService = Provide[Application.services.students]
@@ -18,7 +18,7 @@ async def get_student_list(
 
 
 @api.get('/users/get-by-code')
-@AuthorizationService.check_acces(AccesRights.STUDENT.GET)
+@AuthorizationService.check_acces(AccesRights.USER.GET)
 @inject
 async def get_student_by_code(
     service: UsersService = Provide[Application.services.students]
@@ -32,7 +32,7 @@ async def get_student_by_code(
 
 
 @api.get('/users/get-list-by-codes')
-@AuthorizationService.check_acces(AccesRights.STUDENT.EDITANY)
+@AuthorizationService.check_acces(AccesRights.USER.EDITANY)
 @inject
 async def get_student_list_by_codes(
     service: UsersService = Provide[Application.services.students]
@@ -46,7 +46,7 @@ async def get_student_list_by_codes(
 
 
 @api.post('/users/add')
-@AuthorizationService.check_acces(AccesRights.STUDENT.ADD)
+@AuthorizationService.check_acces(AccesRights.USER.ADD)
 @inject
 async def add_student(
     service: UsersService = Provide[Application.services.students]
@@ -61,7 +61,7 @@ async def add_student(
 
 
 @api.delete('/users/delete')
-@AuthorizationService.check_acces(AccesRights.STUDENT.DELETE)
+@AuthorizationService.check_acces(AccesRights.USER.DELETE)
 @inject
 async def delete_student(
     service: UsersService = Provide[Application.services.students]

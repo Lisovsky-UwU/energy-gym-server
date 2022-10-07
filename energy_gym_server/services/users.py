@@ -105,5 +105,5 @@ class UsersService(AsyncBaseService):
     async def __check_access_for_user__(self, user_code: int, access_user_code: int):
         db_user: database.User = await self.session.get(database.User, user_code)
 
-        if AccesRights.STUDENT.EDITANY not in UserRoles[db_user.role].value and db_user.code != access_user_code:
+        if AccesRights.USER.EDITANY not in UserRoles[db_user.role].value and db_user.code != access_user_code:
             raise AccessRightsException('Для выполнения данной операции у вас недостаточно прав')
