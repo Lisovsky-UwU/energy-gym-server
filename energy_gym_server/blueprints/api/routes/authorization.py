@@ -1,44 +1,36 @@
-from quart import request, jsonify
-from dependency_injector.wiring import Provide, inject
+from flask import request, jsonify
 
 from .. import api
 from energy_gym_server.services import AuthorizationService, UsersService
 from energy_gym_server.models import dto
-from energy_gym_server.containers import Application
 
 
 @api.post('/authorization/registration-user')
-@inject
-async def registration_new_student(
-    user_service: UsersService = Provide[Application.services.students],
-    auth_service: AuthorizationService = Provide[Application.services.authorization]
-):
-    body = await request.get_json()
-    request_dto = dto.RegistrationUserRequest(**body)
+def registration_new_student():
+    request_dto = dto.RegistrationUserRequest(**request.json)
 
-    await user_service.add_user(request_dto)
-    await user_service.commit()
+    with UsersService() as user_service:
+        user_service.add_user(request_dto)
+        user_service.commit()
 
-    login_data = await auth_service.generate_token(
-        dto.LoginRequest(
-            username=request_dto.name,
-            password=request_dto.password
+    with AuthorizationService() as auth_service:
+        login_data = auth_service.generate_token(
+            dto.LoginRequest(
+                username=request_dto.name,
+                password=request_dto.password
+            )
         )
-    )
-    await auth_service.commit()
+        auth_service.commit()
 
     return jsonify(login_data.dict())
 
 
 @api.get('/authorization/login')
-@inject
-async def get_login_token(
-    service: AuthorizationService = Provide[Application.services.authorization]
-):
-    body = await request.get_json()
-    request_dto = dto.LoginRequest(**body)
+def get_login_token():
+    request_dto = dto.LoginRequest(**request.json)
 
-    data = await service.generate_token(request_dto)
-    await  service.commit()
+    with AuthorizationService() as service:
+        data = service.generate_token(request_dto)
+        service.commit()
 
     return jsonify(data.dict())

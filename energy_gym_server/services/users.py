@@ -1,15 +1,15 @@
 from sqlalchemy.future import select
 from sqlalchemy.sql import any_
-from quart import request as quart_request
+from flask import request as flask_request
 
-from .abc import AsyncBaseService
+from .abc import BaseService
 from ..models import dto, database, AccesRights, UserRoles
 from ..exceptions import AddDataCorrectException, GetDataCorrectException, AccessRightsException
 
 
-class UsersService(AsyncBaseService):
+class UsersService(BaseService):
 
-    async def get_user_list(self) -> dto.UserList:
+    def get_user_list(self) -> dto.UserList:
         return dto.UserList(
             user_list=[
                 dto.UserModel(
@@ -18,16 +18,16 @@ class UsersService(AsyncBaseService):
                     group=db_user.group
                 )
                 for db_user in (
-                    await self.session.scalars(select(database.User))
+                    self.session.scalars(select(database.User))
                 )
             ]
         )
     
 
-    async def get_by_code(self, request: dto.ItemByCodeRequest) -> dto.UserModel:
-        await self.__check_access_for_user__(int(quart_request.headers.get('user_code')), request.code)
+    def get_by_code(self, request: dto.ItemByCodeRequest) -> dto.UserModel:
+        self.__check_access_for_user__(int(flask_request.headers.get('user_code')), request.code)
 
-        user = await self.session.get(database.User, request.code)
+        user = self.session.get(database.User, request.code)
         if user is None:
             raise GetDataCorrectException('Пользователь с запрашиваемым кодом не найден')
 
@@ -38,8 +38,8 @@ class UsersService(AsyncBaseService):
         )
 
 
-    async def add_user(self, request: dto.RegistrationUserRequest) -> dto.UserModel:
-        if await self.session.get(database.User, request.code) is not None:
+    def add_user(self, request: dto.RegistrationUserRequest) -> dto.UserModel:
+        if self.session.get(database.User, request.code) is not None:
             raise AddDataCorrectException('Пользователь с данным идентефикатором уже существует')
 
         user = database.User(
@@ -47,7 +47,7 @@ class UsersService(AsyncBaseService):
             role=UserRoles.STUDENT.name
         )
         self.session.add(user)
-        await self.session.flush()
+        self.session.flush()
 
         return dto.UserModel(
             code=user.code,
@@ -56,27 +56,27 @@ class UsersService(AsyncBaseService):
         )
 
 
-    async def delete_user(self, request: dto.ItemDeleteRequest) -> dto.ItemsDeleted:
-        await self.__check_access_for_user__(int(quart_request.headers.get('user_code')), request.code)
+    def delete_user(self, request: dto.ItemDeleteRequest) -> dto.ItemsDeleted:
+        self.__check_access_for_user__(int(flask_request.headers.get('user_code')), request.code)
 
         for db_entry in (
-            await self.session.scalars(
+            self.session.scalars(
                 select(database.Entry)
                 .where(database.Entry.user == request.code)
             )
         ):
-            await self.session.delete(db_entry)
+            self.session.delete(db_entry)
 
         for db_token in (
-            await self.session.scalars(
+            self.session.scalars(
                 select(database.Token)
                 .where(database.Token.user == request.code)
             )
         ):
-            await self.session.delete(db_token)
+            self.session.delete(db_token)
 
-        await self.session.delete(
-            await self.session.get(database.User, request.code)
+        self.session.delete(
+            self.session.get(database.User, request.code)
         )
 
         return dto.ItemsDeleted(
@@ -84,8 +84,8 @@ class UsersService(AsyncBaseService):
         )
 
 
-    async def __check_access_for_user__(self, user_code: int, access_user_code: int):
-        db_user: database.User = await self.session.get(database.User, user_code)
+    def __check_access_for_user__(self, user_code: int, access_user_code: int):
+        db_user: database.User = self.session.get(database.User, user_code)
 
         if AccesRights.USER.EDITANY not in UserRoles[db_user.role].value and db_user.code != access_user_code:
             raise AccessRightsException('Для выполнения данной операции у вас недостаточно прав')

@@ -1,75 +1,59 @@
-from quart import request, jsonify
-from dependency_injector.wiring import Provide, inject
+from flask import request, jsonify
 
 from .. import api
 from energy_gym_server.services import AvailableDaysService, AuthorizationService
 from energy_gym_server.models import dto, AccesRights
-from energy_gym_server.containers import Application
 
 
 @api.get('/available-days/get-list')
 @AuthorizationService.check_acces(AccesRights.AVAILABLEDAY.GET)
-@inject
-async def get_available_day_list(
-    service: AvailableDaysService = Provide[Application.services.available_day]
-):
-    data = await service.get_all_days()
+def get_available_day_list():
+    with AvailableDaysService() as service:
+        data = service.get_all_days()
     return jsonify(data.dict())
 
 
 @api.get('/available-days/get-list-in-period')
 @AuthorizationService.check_acces(AccesRights.AVAILABLEDAY.GET)
-@inject
-async def get_available_day_list_in_period(
-    service: AvailableDaysService = Provide[Application.services.available_day]
-):
-    body = await request.get_json()
-    request_dto = dto.AvailableDayListInPeriodRequest(**body)
+def get_available_day_list_in_period():
+    request_dto = dto.AvailableDayListInPeriodRequest(**request.json)
 
-    data = await service.get_days_by_period(request_dto)
+    with AvailableDaysService() as service:
+        data = service.get_days_by_period(request_dto)
 
     return jsonify(data.dict())
 
 
 @api.get('available-days/get-by-code')
 @AuthorizationService.check_acces(AccesRights.AVAILABLEDAY.GET)
-@inject
-async def get_abailable_day_by_code(
-    service: AvailableDaysService = Provide[Application.services.available_day]
-):
-    body = await request.get_json()
-    request_dto = dto.ItemByCodeRequest(**body)
+def get_abailable_day_by_code():
+    request_dto = dto.ItemByCodeRequest(**request.json)
 
-    data = await service.get_day_by_code(request_dto)
+    with AvailableDaysService() as service:
+        data = service.get_day_by_code(request_dto)
 
     return jsonify(data.dict())
 
 
 @api.post('/available-days/add')
 @AuthorizationService.check_acces(AccesRights.AVAILABLEDAY.ADD)
-@inject
-async def add_day(
-    service: AvailableDaysService = Provide[Application.services.available_day]
-):
-    body = await request.get_json()
-    request_dto = dto.AvailableDayAddRequest(**body)
+def add_day():
+    request_dto = dto.AvailableDayAddRequest(**request.json)
 
-    data = await service.add_day(request_dto)
-    await service.commit()
+    with AvailableDaysService() as service:
+        data = service.add_day(request_dto)
+        service.commit()
 
     return jsonify(data.dict())
 
 
 @api.delete('/available-days/delete')
 @AuthorizationService.check_acces(AccesRights.AVAILABLEDAY.DELETE)
-@inject
-async def delete_available_day(
-    service: AvailableDaysService = Provide[Application.services.available_day]
-):
-    body = await request.get_json()
-    request_dto = dto.ItemDeleteRequest(**body)
+def delete_available_day():
+    request_dto = dto.ItemDeleteRequest(**request.json)
 
-    data = await service.delete_day(request_dto)
-    await service.commit()
+    with AvailableDaysService() as service:
+        data = service.delete_day(request_dto)
+        service.commit()
 
     return jsonify(data.dict())

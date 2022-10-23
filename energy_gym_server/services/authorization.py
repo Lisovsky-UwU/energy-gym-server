@@ -1,17 +1,17 @@
 import functools
-from quart import request
+from flask import request
 from sqlalchemy.future import select
 from passlib.totp import generate_secret
 
-from .abc import AsyncBaseService
+from .abc import BaseService
 from ..models import dto, database, UserRoles
 from .. import exceptions
 
 
-class AuthorizationService(AsyncBaseService):
+class AuthorizationService(BaseService):
 
-    async def generate_token(self, request: dto.LoginRequest) -> dto.TokenModel:
-        db_user = await self.session.scalar(
+    def generate_token(self, request: dto.LoginRequest) -> dto.TokenModel:
+        db_user = self.session.scalar(
             select(database.User)
             .where(database.User.name == request.username)
             .where(database.User.password == request.password)
@@ -25,7 +25,7 @@ class AuthorizationService(AsyncBaseService):
         )
 
         self.session.add(db_token)
-        await self.session.flush()
+        self.session.flush()
 
         return dto.TokenModel(
             token=db_token.token,
@@ -38,17 +38,17 @@ class AuthorizationService(AsyncBaseService):
 
         def _check_auth(func):
             @functools.wraps(func)
-            async def decorator(*args, **kwargs):
+            def decorator(*args, **kwargs):
                 request_token = request.headers.get('Authorization')
                 if request_token is None:
                     raise exceptions.TokenMissingException('Отсутствует заголовок Authorization')
 
-                async with AuthorizationService() as service:
-                    db_token = await service.session.get(database.Token, request_token)
+                with AuthorizationService() as service:
+                    db_token = service.session.get(database.Token, request_token)
                     if db_token is None:
                         raise exceptions.IncorrectTokenException('Неверный токен запроса')
 
-                    db_user = await service.session.get(database.User, db_token.user)
+                    db_user = service.session.get(database.User, db_token.user)
                     if db_user is None:
                         raise exceptions.GetDataCorrectException('Пользователь не найден')
 
@@ -57,7 +57,7 @@ class AuthorizationService(AsyncBaseService):
                     
                     request.headers.add('user_code', db_user.code)
 
-                return await func(*args, **kwargs)
+                return func(*args, **kwargs)
 
             return decorator
 

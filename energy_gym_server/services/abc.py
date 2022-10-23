@@ -5,7 +5,7 @@ from ..exceptions import DataBaseConnectionException
 from ..models.database import session_factory
 
 
-class AsyncBaseService:
+class BaseService:
     
     def __init__(self, session: Session = None, **kwargs):
         if session is None:
@@ -13,15 +13,18 @@ class AsyncBaseService:
         else:
             self.session = session
 
-    def __getattr__(self, attr):
-        return getattr(self.session, attr)
-
-    async def __aenter__(self):
+    def __enter__(self):
         return self
 
-    async def __aexit__(self, exc_type, exc_value, traceback):
-        await self.close()
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
 
         if exc_type is not None:
             if issubclass(exc_type, ConnectionError):
                 raise DataBaseConnectionException("Отсутствует соединение с базой данных")
+
+    def commit(self):
+        self.session.commit()
+
+    def close(self):
+        self.session.close()

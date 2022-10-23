@@ -1,61 +1,49 @@
-from quart import request, jsonify
-from dependency_injector.wiring import Provide, inject
+from flask import request, jsonify
 
 from .. import api
 from energy_gym_server.services import UsersService, AuthorizationService
 from energy_gym_server.models import dto, AccesRights
-from energy_gym_server.containers import Application
 
 
 @api.get('/users/get-list')
 @AuthorizationService.check_acces(AccesRights.USER.EDITANY)
-@inject
-async def get_student_list(
-    service: UsersService = Provide[Application.services.students]
-):
-    data = await service.get_user_list()
+def get_student_list():
+    with UsersService() as service:
+        data = service.get_user_list()
+
     return jsonify(data.dict())
 
 
 @api.get('/users/get-by-code')
 @AuthorizationService.check_acces(AccesRights.USER.GET)
-@inject
-async def get_student_by_code(
-    service: UsersService = Provide[Application.services.students]
-):
-    body = await request.get_json()
-    request_dto = dto.ItemByCodeRequest(**body)
+def get_student_by_code():
+    request_dto = dto.ItemByCodeRequest(**request.json)
 
-    data = await service.get_by_code(request_dto)
+    with UsersService() as service:
+        data = service.get_by_code(request_dto)
 
     return jsonify(data.dict())
 
 
 @api.post('/users/add')
 @AuthorizationService.check_acces(AccesRights.USER.ADD)
-@inject
-async def add_student(
-    service: UsersService = Provide[Application.services.students]
-):
-    body = await request.get_json()
-    request_dto = dto.RegistrationUserRequest(**body)
+def add_student():
+    request_dto = dto.RegistrationUserRequest(**request.json)
 
-    data = await service.add_user(request_dto)
-    await service.commit()
+    with UsersService() as service:
+        data = service.add_user(request_dto)
+        service.commit()
 
     return jsonify(data.dict())
 
 
 @api.delete('/users/delete')
 @AuthorizationService.check_acces(AccesRights.USER.DELETE)
-@inject
-async def delete_student(
-    service: UsersService = Provide[Application.services.students]
-):
-    body = await request.get_json()
-    request_dto = dto.ItemDeleteRequest(**body)
+def delete_student():
+    request_dto = dto.ItemDeleteRequest(**request.json)
 
-    data = await service.delete_user(request_dto)
-    await service.commit()
+    with UsersService() as service:
+        data = service.delete_user(request_dto)
+        service.commit()
 
     return jsonify(data.dict())

@@ -27,7 +27,7 @@ class Postgre(BaseModel):
 
     @property
     def connect_str(self):
-        return f'postgresql+asyncpg://{self.user}:{self.password}@{self.host}:{self.port}'
+        return f'postgresql+psycopg2://{self.user}:{self.password}@{self.host}:{self.port}'
 
     # validators
     _validate_port = validator('port', allow_reuse=True)(validate_port)
