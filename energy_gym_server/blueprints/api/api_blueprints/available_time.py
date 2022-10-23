@@ -50,7 +50,7 @@ def add_day():
 
 
 @available_time_bl.post('/add-default-time')
-@AuthorizationService.check_acces(AccesRights.AVAILABLETIME)
+@AuthorizationService.check_acces(AccesRights.AVAILABLETIME.ADD)
 def add_default_time():
     with AvailableTimeService() as service:
         data = service.add_time_from_list(default_time_list_factory())
