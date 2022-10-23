@@ -1,6 +1,4 @@
 from sqlalchemy.future import select
-from sqlalchemy.sql import any_
-from flask import request as flask_request
 
 from .abc import BaseService
 from ..models import dto, database, AccesRights, UserRoles
@@ -24,8 +22,8 @@ class UsersService(BaseService):
         )
     
 
-    def get_by_code(self, request: dto.ItemByCodeRequest) -> dto.UserModel:
-        self.__check_access_for_user__(int(flask_request.headers.get('user_code')), request.code)
+    def get_by_code(self, db_user: database.User, request: dto.ItemByCodeRequest) -> dto.UserModel:
+        self.__check_access_for_user__(db_user, request.code)
 
         user = self.session.get(database.User, request.code)
         if user is None:
@@ -56,8 +54,8 @@ class UsersService(BaseService):
         )
 
 
-    def delete_user(self, request: dto.ItemDeleteRequest) -> dto.ItemsDeleted:
-        self.__check_access_for_user__(int(flask_request.headers.get('user_code')), request.code)
+    def delete_user(self, db_user: database.User, request: dto.ItemDeleteRequest) -> dto.ItemsDeleted:
+        self.__check_access_for_user__(db_user, request.code)
 
         for db_entry in (
             self.session.scalars(
@@ -84,8 +82,6 @@ class UsersService(BaseService):
         )
 
 
-    def __check_access_for_user__(self, user_code: int, access_user_code: int):
-        db_user: database.User = self.session.get(database.User, user_code)
-
+    def __check_access_for_user__(self, db_user: database.User, access_user_code: int):
         if AccesRights.USER.EDITANY not in UserRoles[db_user.role].value and db_user.code != access_user_code:
             raise AccessRightsException('Для выполнения данной операции у вас недостаточно прав')

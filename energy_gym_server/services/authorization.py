@@ -34,8 +34,13 @@ class AuthorizationService(BaseService):
 
 
     @staticmethod
-    def check_acces(access: str):
-
+    def check_acces(access: str, return_user_info: bool = False):
+        '''
+        Декоратор для проверки авторизации При return_user_info = True 
+        функция должна принимать обязательный параметр user типа database.User.
+        
+        В него передастся запись о пользователе из таблицы БД
+        '''
         def _check_auth(func):
             @functools.wraps(func)
             def decorator(*args, **kwargs):
@@ -55,9 +60,10 @@ class AuthorizationService(BaseService):
                     if access not in UserRoles[db_user.role].value:
                         raise exceptions.AccessRightsException('Для выполнения данной операции у вас недостаточно прав')
                     
-                    request.headers.add('user_code', db_user.code)
-
-                return func(*args, **kwargs)
+                if return_user_info:
+                    return func(user=db_user, *args, **kwargs)
+                else:
+                    return func(*args, **kwargs)
 
             return decorator
 
