@@ -1,18 +1,21 @@
 from typing import List
+from datetime import datetime
 from sqlalchemy.future import select
 from sqlalchemy.sql import func, any_
 
 from .abc import BaseService
-from ..models import dto, database
+from ..models import dto, database, available_time_list
 from ..exceptions import AddDataCorrectException, GetDataCorrectException
 
 
 class AvailableTimeService(BaseService):
 
-    def get_all_time(self) -> dto.AvailableTimeList:
+    def get_all_time(self, all_months: bool = False) -> dto.AvailableTimeList:
+        cur_time = datetime.now()
         return self.__get_time_list_with_free_seats__(
             self.session.scalars(
                 select(database.AvailableTime)
+                .where(database.AvailableTime.month == f'{cur_time.month}-{cur_time.year}' if all_months == False else True)
             )
         )
 
@@ -30,17 +33,19 @@ class AvailableTimeService(BaseService):
     def get_time_by_code(self, request: dto.ItemByCodeRequest) -> dto.AvailableTimeDetailed:
         available_time = self.session.get(database.AvailableTime, request.code)
         if available_time is None:
-            raise GetDataCorrectException('Запрашиваемый день не найден')
+            raise GetDataCorrectException('Запрашиваемое время не найдено')
 
         return self.__get_time_with_free_seats__(available_time)
 
 
     def add_time(self, request: dto.AvailableTimeAddRequest) -> dto.AvailableTimeBase:
+        cur_time = datetime.now()
         if self.session.scalar(
             select(database.AvailableTime)
             .where(database.AvailableTime.weektime == request.weektime)
+            .where(database.AvailableTime.month == f'{cur_time.month}-{cur_time.year}')
         ) is not None:
-            raise AddDataCorrectException('Запись на данный день уже существует')
+            raise AddDataCorrectException('Запись на данное время уже существует')
 
         available_time = database.AvailableTime(**request.dict())
         self.session.add(available_time)
@@ -51,6 +56,20 @@ class AvailableTimeService(BaseService):
             weektime=available_time.weektime,
             number_of_persons=available_time.number_of_persons
         )
+
+
+    def add_time_from_list(self):
+        cur_time = datetime.now()
+        for time in available_time_list:
+            available_time = database.AvailableTime(
+                weektime=time['weektime'],
+                number_of_persons=time['number_of_persons'],
+                month=f'{cur_time.month}-{cur_time.year}'
+            )
+            self.session.add(available_time)
+        
+        self.session.flush()
+        self.commit()
 
 
     def delete_time(self, request: dto.ItemDeleteRequest) -> dto.ItemsDeleted:
@@ -66,7 +85,7 @@ class AvailableTimeService(BaseService):
             self.session.get(database.AvailableTime, request.code)
         )
         return dto.ItemsDeleted(
-            result_text='День для записи успешно удален'
+            result_text='Время для записи успешно удалено'
         )
 
 

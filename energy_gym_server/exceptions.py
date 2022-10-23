@@ -19,7 +19,7 @@ class DataBaseConnectionException(DataBaseException):
 
 
 class AddDataCorrectException(DataBaseException):
-    '''Исключение при неверных вносимныз данных в БД'''
+    '''Исключение при неверных вносимных данных в БД'''
     pass
 
 
