@@ -1,17 +1,17 @@
 from typing import List
 
 
-class AvailableDayAccess:
+class AvailableTimeAccess:
     '''Права доступов для информации по дням для записи'''
-    ADD = 'available day add'
-    GET = 'available day get'
-    DELETE = 'available day delete'
+    ADD = 'available time add'
+    GET = 'available time get'
+    DELETE = 'available time delete'
 
     def get_all_rights() -> List:
         return [
-            AvailableDayAccess.ADD,
-            AvailableDayAccess.GET,
-            AvailableDayAccess.DELETE
+            AvailableTimeAccess.ADD,
+            AvailableTimeAccess.GET,
+            AvailableTimeAccess.DELETE
         ]
 
 
@@ -49,13 +49,13 @@ class EntyAccess:
 
 class AccesRights:
     '''Права доступов для редактирования и получения данных'''
-    AVAILABLEDAY = AvailableDayAccess
+    AVAILABLETIME = AvailableTimeAccess
     USER = UserAccess
     ENTRY = EntyAccess
 
     def get_all_rights() -> List:
         return [
-            *AccesRights.AVAILABLEDAY.get_all_rights(),
+            *AccesRights.AVAILABLETIME.get_all_rights(),
             *AccesRights.USER.get_all_rights(),
             *AccesRights.ENTRY.get_all_rights()
         ]

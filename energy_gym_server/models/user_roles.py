@@ -6,7 +6,7 @@ from .access_rights import AccesRights
 class UserRoles(Enum):
     
     STUDENT = [
-        AccesRights.AVAILABLEDAY.GET,
+        AccesRights.AVAILABLETIME.GET,
         AccesRights.ENTRY.ADD,
         AccesRights.ENTRY.GET,
         AccesRights.ENTRY.DELETE,
