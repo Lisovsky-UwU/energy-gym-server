@@ -4,7 +4,7 @@ from sqlalchemy.future import select
 from sqlalchemy.sql import func, any_
 
 from .abc import BaseService
-from ..models import dto, database, available_time_list
+from ..models import dto, database
 from ..exceptions import AddDataCorrectException, GetDataCorrectException
 
 
@@ -39,11 +39,10 @@ class AvailableTimeService(BaseService):
 
 
     def add_time(self, request: dto.AvailableTimeAddRequest) -> dto.AvailableTimeBase:
-        cur_time = datetime.now()
         if self.session.scalar(
             select(database.AvailableTime)
             .where(database.AvailableTime.weektime == request.weektime)
-            .where(database.AvailableTime.month == f'{cur_time.month}-{cur_time.year}')
+            .where(database.AvailableTime.month == request.month)
         ) is not None:
             raise AddDataCorrectException('Запись на данное время уже существует')
 
@@ -58,18 +57,15 @@ class AvailableTimeService(BaseService):
         )
 
 
-    def add_time_from_list(self):
-        cur_time = datetime.now()
-        for time in available_time_list:
-            available_time = database.AvailableTime(
-                weektime=time['weektime'],
-                number_of_persons=time['number_of_persons'],
-                month=f'{cur_time.month}-{cur_time.year}'
-            )
-            self.session.add(available_time)
+    def add_time_from_list(self, request: dto.AvailableTimeListAddRequest) -> dto.AvailableTimeList:
+        result_list = []
+        for added_time in request.list:
+            try:
+                result_list.append(self.add_time(added_time))
+            except AddDataCorrectException:
+                pass
         
-        self.session.flush()
-        self.commit()
+        return result_list
 
 
     def delete_time(self, request: dto.ItemDeleteRequest) -> dto.ItemsDeleted:

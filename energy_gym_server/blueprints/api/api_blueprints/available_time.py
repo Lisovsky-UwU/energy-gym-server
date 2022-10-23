@@ -1,7 +1,7 @@
 from flask import request, jsonify, Blueprint
 
 from energy_gym_server.services import AvailableTimeService, AuthorizationService
-from energy_gym_server.models import dto, AccesRights
+from energy_gym_server.models import dto, AccesRights, default_time_list_factory
 
 
 available_time_bl = Blueprint('available_time', __name__)
@@ -44,6 +44,16 @@ def add_day():
 
     with AvailableTimeService() as service:
         data = service.add_time(request_dto)
+        service.commit()
+
+    return jsonify(data.dict())
+
+
+@available_time_bl.post('/add-default-time')
+@AuthorizationService.check_acces(AccesRights.AVAILABLETIME)
+def add_default_time():
+    with AvailableTimeService() as service:
+        data = service.add_time_from_list(default_time_list_factory())
         service.commit()
 
     return jsonify(data.dict())
