@@ -10,7 +10,7 @@ from ..exceptions import AddDataCorrectException, GetDataCorrectException
 
 class AvailableTimeService(BaseService):
 
-    def get_all_time(self, all_months: bool = False) -> dto.AvailableTimeList:
+    def get_all_time(self, all_months: bool = False) -> dto.AvailableTimeDetailedList:
         cur_time = datetime.now()
         return self.__get_time_list_with_free_seats__(
             self.session.scalars(
@@ -57,7 +57,7 @@ class AvailableTimeService(BaseService):
         )
 
 
-    def add_time_from_list(self, request: dto.AvailableTimeListAddRequest) -> dto.AvailableTimeList:
+    def add_time_from_list(self, request: dto.AvailableTimeListAddRequest) -> dto.AvailableTimeBaseList:
         result_list = []
         for added_time in request.list:
             try:
@@ -65,7 +65,7 @@ class AvailableTimeService(BaseService):
             except AddDataCorrectException:
                 pass
         
-        return result_list
+        return dto.AvailableTimeBaseList(list=result_list)
 
 
     def delete_time(self, request: dto.ItemDeleteRequest) -> dto.ItemsDeleted:
@@ -85,13 +85,13 @@ class AvailableTimeService(BaseService):
         )
 
 
-    def __get_time_list_with_free_seats__(self, db_time_list: List[database.AvailableTime]) -> dto.AvailableTimeList:
+    def __get_time_list_with_free_seats__(self, db_time_list: List[database.AvailableTime]) -> dto.AvailableTimeDetailedList:
         result_list = []
         for db_time in db_time_list:
             result_list.append(self.__get_time_with_free_seats__(db_time))
         
-        return dto.AvailableTimeList(
-            time_list=result_list
+        return dto.AvailableTimeDetailedList(
+            list=result_list
         )
 
     
@@ -110,6 +110,7 @@ class AvailableTimeService(BaseService):
             code=db_time.code,
             weektime=db_time.weektime,
             number_of_persons=db_time.number_of_persons,
-            free_seats=db_time.number_of_persons - entries_time.count
+            free_seats=db_time.number_of_persons - entries_time.count,
+            month=db_time.month
         )
         

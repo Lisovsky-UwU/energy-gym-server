@@ -1,6 +1,5 @@
-from typing import List
 from pydantic import BaseModel
-from datetime import date, datetime
+from datetime import datetime
 
 
 class UserModel(BaseModel):
@@ -23,7 +22,7 @@ class AvailableTimeDetailed(AvailableTimeBase):
 class EntryModel(BaseModel):
     code: int
     create_time: datetime
-    selected_day: int
+    selected_time: int
     user: int
 
 

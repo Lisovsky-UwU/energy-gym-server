@@ -7,7 +7,7 @@ from energy_gym_server.models import dto
 authorization_bl = Blueprint('authorization', __name__)
 
 
-@authorization_bl.post('/registration-user')
+@authorization_bl.post('/registration')
 def registration_new_student():
     request_dto = dto.RegistrationUserRequest(**request.json)
 

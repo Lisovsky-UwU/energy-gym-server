@@ -12,5 +12,5 @@ class EntryList(BaseModel):
 class EntryDetailed(BaseModel):
     code: int
     create_time: datetime
-    selected_day: AvailableTimeBase
+    selected_time: AvailableTimeBase
     user: UserModel

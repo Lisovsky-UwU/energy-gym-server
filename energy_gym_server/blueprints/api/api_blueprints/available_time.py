@@ -11,7 +11,7 @@ available_time_bl = Blueprint('available_time', __name__)
 @AuthorizationService.check_acces(AccesRights.AVAILABLETIME.GET)
 def get_available_day_list():
     with AvailableTimeService() as service:
-        data = service.get_all_days()
+        data = service.get_all_time()
     return jsonify(data.dict())
 
 
