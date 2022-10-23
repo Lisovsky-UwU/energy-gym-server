@@ -1,11 +1,13 @@
-from flask import request, jsonify
+from flask import request, jsonify, Blueprint
 
-from .. import api
 from energy_gym_server.services import UsersService, AuthorizationService
 from energy_gym_server.models import dto, AccesRights
 
 
-@api.get('/users/get-list')
+users_bl = Blueprint('users', __name__)
+
+
+users_bl.get('/get-list')
 @AuthorizationService.check_acces(AccesRights.USER.EDITANY)
 def get_student_list():
     with UsersService() as service:
@@ -14,7 +16,7 @@ def get_student_list():
     return jsonify(data.dict())
 
 
-@api.get('/users/get-by-code')
+users_bl.get('/get-by-code')
 @AuthorizationService.check_acces(AccesRights.USER.GET)
 def get_student_by_code():
     request_dto = dto.ItemByCodeRequest(**request.json)
@@ -25,7 +27,7 @@ def get_student_by_code():
     return jsonify(data.dict())
 
 
-@api.post('/users/add')
+users_bl.post('/add')
 @AuthorizationService.check_acces(AccesRights.USER.ADD)
 def add_student():
     request_dto = dto.RegistrationUserRequest(**request.json)
@@ -37,7 +39,7 @@ def add_student():
     return jsonify(data.dict())
 
 
-@api.delete('/users/delete')
+users_bl.delete('/delete')
 @AuthorizationService.check_acces(AccesRights.USER.DELETE)
 def delete_student():
     request_dto = dto.ItemDeleteRequest(**request.json)

@@ -1,11 +1,13 @@
-from flask import request, jsonify
+from flask import request, jsonify, Blueprint
 
-from .. import api
 from energy_gym_server.services import AuthorizationService, UsersService
 from energy_gym_server.models import dto
 
 
-@api.post('/authorization/registration-user')
+authorization_bl = Blueprint('authorization', __name__)
+
+
+@authorization_bl.post('/registration-user')
 def registration_new_student():
     request_dto = dto.RegistrationUserRequest(**request.json)
 
@@ -25,7 +27,7 @@ def registration_new_student():
     return jsonify(login_data.dict())
 
 
-@api.get('/authorization/login')
+@authorization_bl.get('/login')
 def get_login_token():
     request_dto = dto.LoginRequest(**request.json)
 
