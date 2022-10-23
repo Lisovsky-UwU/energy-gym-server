@@ -44,7 +44,7 @@ class EntriesService(BaseService):
     def add_entry(self, request: dto.EntryAddRequest) -> dto.EntryModel:
         self.__check_access_for_user__(int(flask_request.headers.get('user_code')), request.user_code)
 
-        db_selected_day = self.session.get(database.AvailableDay, request.selected_day)
+        db_selected_day = self.session.get(database.AvailableTime, request.selected_day)
         if db_selected_day is None:
             raise AddDataCorrectException('На указанный день возможные записи отсутствуют')
         if self.session.get(database.User, request.user_code) is None:
@@ -100,7 +100,7 @@ class EntriesService(BaseService):
 
 
     def __get_detailed_entry__(self, db_entry: database.Entry) -> dto.EntryDetailed:
-        db_selected_day = self.session.get(database.AvailableDay, db_entry.selected_day)
+        db_selected_day = self.session.get(database.AvailableTime, db_entry.selected_day)
         db_user = self.session.get(database.User, db_entry.user)
 
         return dto.EntryDetailed(

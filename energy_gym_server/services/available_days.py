@@ -12,7 +12,7 @@ class AvailableDaysService(BaseService):
     def get_all_days(self) -> dto.AvailableDayList:
         return self.__get_day_list_with_free_seats__(
             self.session.scalars(
-                select(database.AvailableDay)
+                select(database.AvailableTime)
             )
         )
 
@@ -20,15 +20,15 @@ class AvailableDaysService(BaseService):
     def get_days_by_period(self, request: dto.AvailableDayListInPeriodRequest) -> dto.AvailableDayList:
         return self.__get_day_list_with_free_seats__(
             self.session.scalars(
-                select(database.AvailableDay)
-                .where(database.AvailableDay.day >= request.date_begin)
-                .where(database.AvailableDay.day <= request.date_end)
+                select(database.AvailableTime)
+                .where(database.AvailableTime.weektime >= request.date_begin)
+                .where(database.AvailableTime.weektime <= request.date_end)
             )
         )
 
 
     def get_day_by_code(self, request: dto.ItemByCodeRequest) -> dto.AvailableDayDetailed:
-        available_day = self.session.get(database.AvailableDay, request.code)
+        available_day = self.session.get(database.AvailableTime, request.code)
         if available_day is None:
             raise GetDataCorrectException('Запрашиваемый день не найден')
 
@@ -37,18 +37,18 @@ class AvailableDaysService(BaseService):
 
     def add_day(self, request: dto.AvailableDayAddRequest) -> dto.AvailableDayBase:
         if self.session.scalar(
-            select(database.AvailableDay)
-            .where(database.AvailableDay.day == request.day)
+            select(database.AvailableTime)
+            .where(database.AvailableTime.weektime == request.day)
         ) is not None:
             raise AddDataCorrectException('Запись на данный день уже существует')
 
-        available_day = database.AvailableDay(**request.dict())
+        available_day = database.AvailableTime(**request.dict())
         self.session.add(available_day)
         self.session.flush()
         
         return dto.AvailableDayBase(
             code=available_day.code,
-            day=available_day.day,
+            day=available_day.weektime,
             number_of_persons=available_day.number_of_persons
         )
 
@@ -63,14 +63,14 @@ class AvailableDaysService(BaseService):
             self.session.delete(db_entry)
         
         self.session.delete(
-            self.session.get(database.AvailableDay, request.code)
+            self.session.get(database.AvailableTime, request.code)
         )
         return dto.ItemsDeleted(
             result_text='День для записи успешно удален'
         )
 
 
-    def __get_day_list_with_free_seats__(self, db_day_list: List[database.AvailableDay]) -> dto.AvailableDayList:
+    def __get_day_list_with_free_seats__(self, db_day_list: List[database.AvailableTime]) -> dto.AvailableDayList:
         result_list = []
         for db_day in db_day_list:
             result_list.append(self.__get_day_with_free_seats__(db_day))
@@ -80,7 +80,7 @@ class AvailableDaysService(BaseService):
         )
 
     
-    def __get_day_with_free_seats__(self, db_day: database.AvailableDay) -> dto.AvailableDayDetailed:
+    def __get_day_with_free_seats__(self, db_day: database.AvailableTime) -> dto.AvailableDayDetailed:
         entries_day = (
             self.session.execute(
                 select(func.count())
@@ -93,7 +93,7 @@ class AvailableDaysService(BaseService):
         ).one()
         return dto.AvailableDayDetailed(
             code=db_day.code,
-            day=db_day.day,
+            day=db_day.weektime,
             number_of_persons=db_day.number_of_persons,
             free_seats=db_day.number_of_persons - entries_day.count
         )
