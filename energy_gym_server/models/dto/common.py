@@ -9,14 +9,15 @@ class UserModel(BaseModel):
     group: str
 
 
-class AvailableDayBase(BaseModel):
+class AvailableTimeBase(BaseModel):
     code: int
-    day: date
+    weektime: str
     number_of_persons: int
 
 
-class AvailableDayDetailed(AvailableDayBase):
+class AvailableTimeDetailed(AvailableTimeBase):
     free_seats: int
+    month: str
 
 
 class EntryModel(BaseModel):

@@ -18,7 +18,7 @@ class EntriesService(BaseService):
     def get_entries_in_day(self, request: dto.EntryListInDayRequest) -> dto.EntryList:
         return self.__get_entry_list_for_filter__(
             [
-                database.Entry.selected_day == request.available_day
+                database.Entry.selected_time == request.available_day
             ]
         )
 
@@ -53,7 +53,7 @@ class EntriesService(BaseService):
         if self.session.scalar(
             select(database.Entry)
             .where(database.Entry.user == request.user_code)
-            .where(database.Entry.selected_day == request.selected_day)
+            .where(database.Entry.selected_time == request.selected_day)
         ) is not None:
             raise AddDataCorrectException('Такая запись уже существует')
 
@@ -62,7 +62,7 @@ class EntriesService(BaseService):
                 select(func.count())
                 .select_from(
                     select(database.Entry)
-                    .filter(database.Entry.selected_day == request.selected_day)
+                    .filter(database.Entry.selected_time == request.selected_day)
                     .subquery()
                 )
             )
@@ -83,7 +83,7 @@ class EntriesService(BaseService):
         return dto.EntryModel(
             code=entry.code,
             create_time=entry.create_time,
-            selected_day=entry.selected_day,
+            selected_day=entry.selected_time,
             user=entry.user
         )
 
@@ -100,13 +100,13 @@ class EntriesService(BaseService):
 
 
     def __get_detailed_entry__(self, db_entry: database.Entry) -> dto.EntryDetailed:
-        db_selected_day = self.session.get(database.AvailableTime, db_entry.selected_day)
+        db_selected_day = self.session.get(database.AvailableTime, db_entry.selected_time)
         db_user = self.session.get(database.User, db_entry.user)
 
         return dto.EntryDetailed(
             code=db_entry.code,
             create_time=db_entry.create_time,
-            selected_day=dto.AvailableDayBase(
+            selected_day=dto.AvailableTimeBase(
                 code=db_selected_day.code,
                 day=db_selected_day.day,
                 number_of_persons=db_selected_day.number_of_persons

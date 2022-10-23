@@ -3,11 +3,11 @@ from pydantic import BaseModel
 from datetime import date
 
 
-class AvailableDayAddRequest(BaseModel):
-    day: date
+class AvailableTimeAddRequest(BaseModel):
+    weektime: str
     number_of_persons: int
 
 
-class AvailableDayListInPeriodRequest(BaseModel):
+class AvailableTimeListInPeriodRequest(BaseModel):
     date_begin: date
     date_end: date
