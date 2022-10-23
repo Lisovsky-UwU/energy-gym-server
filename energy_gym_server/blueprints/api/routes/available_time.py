@@ -13,15 +13,15 @@ def get_available_day_list():
     return jsonify(data.dict())
 
 
-@api.get('/available-time/get-list-in-period')
-@AuthorizationService.check_acces(AccesRights.AVAILABLETIME.GET)
-def get_available_day_list_in_period():
-    request_dto = dto.AvailableTimeListInPeriodRequest(**request.json)
+# @api.get('/available-time/get-list-in-period')
+# @AuthorizationService.check_acces(AccesRights.AVAILABLETIME.GET)
+# def get_available_day_list_in_period():
+#     request_dto = dto.AvailableTimeListInPeriodRequest(**request.json)
 
-    with AvailableTimeService() as service:
-        data = service.get_days_by_period(request_dto)
+#     with AvailableTimeService() as service:
+#         data = service.get_days_by_period(request_dto)
 
-    return jsonify(data.dict())
+#     return jsonify(data.dict())
 
 
 @api.get('available-time/get-by-code')
